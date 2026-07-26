@@ -6,16 +6,21 @@ export const homeBanners = [
     title: "Target Batch: Class 9th - 12th (UP & CBSE Board)",
     subtitle: "Complete NCERT + Board Special Practice with 100% Personal Guidance.",
     primaryBtnText: "Explore Batches 🚀",
+    primaryBtnLink: "/courses",
     secondaryBtnText: "Free Notes 📚",
+    secondaryBtnLink: "/store"
   },
   {
     id: 2,
     image: "/images/mvd-admission-banner.png",
     badge: "⭐ Topper's Choice",
-    title: "UP Board Hindi Medium and CBSE Board English Medium  Board Booster Batch",
+    title: "UP Board Hindi Medium and CBSE Board English Medium Board Booster Batch",
     subtitle: "Har subject ke Chapterwise Printed Notes, Model Papers aur Test Series.",
     primaryBtnText: "Join UP Board Batch",
-    secondaryBtnText: "View Syllabus",
+    primaryBtnLink: "/courses",
+    secondaryBtnText: "Contact Us",
+    secondaryBtnLink: "/contact"
+
   },
   {
     id: 3,
@@ -24,6 +29,7 @@ export const homeBanners = [
     title: "Download Class 10th & 12th Sample Papers",
     subtitle: "Previous 5 Years Question Papers with Complete Video Solutions.",
     primaryBtnText: "Go to PDF Store 📥",
-    secondaryBtnText: "Learn More",
+    primaryBtnLink: "/store",
+    
   }
 ];

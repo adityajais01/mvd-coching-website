@@ -1,18 +1,30 @@
-import { Route, Routes } from "react-router-dom"
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Home from './pages/Home';
+import CoursesPage from './pages/CoursesPage';
+import AboutPage from './pages/AboutPage';
+import ContactPage from './pages/ContactPage';
+import Store from './pages/Store';
+import ScrollToTop from './components/common/ScrollToTop';
+import Login from './pages/Login';               // 👈 Added Login
+import Signup from './pages/Signup';
 
-import Coursepage from "./pages/Coursepage"
-import Home from "./pages/Home"
-
-const App = () => {
+function App() {
   return (
-    <div className="bg-zinc-950 min-h-screen w-full text-white ">
-      
+    <>
+      <ScrollToTop />
       <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/courses" element={<Coursepage/>}/>
+        <Route path="/" element={<Home />} />
+        <Route path="/courses" element={<CoursesPage />} />
+        <Route path="/store" element={<Store />} />
+        <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
-    </div>
-  )
+    </>
+    
+  );
 }
 
-export default App
+export default App;

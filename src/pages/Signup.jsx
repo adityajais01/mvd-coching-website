@@ -1,0 +1,203 @@
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import Button from '../components/common/Button';
+
+const Signup = () => {
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    phone: '',
+    board: 'UP Board',
+    targetClass: 'Class 10th',
+    password: '',
+    confirmPassword: ''
+  });
+
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const { signup } = useAuth();
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (formData.password !== formData.confirmPassword) {
+      return setError('Passwords do not match!');
+    }
+
+    if (formData.password.length < 6) {
+      return setError('Password must be at least 6 characters long.');
+    }
+
+    setLoading(true);
+
+    try {
+      await signup(formData.email, formData.password, {
+        fullName: formData.fullName,
+        phone: formData.phone,
+        board: formData.board,
+        targetClass: formData.targetClass
+      });
+      navigate('/dashboard');
+    } catch (err) {
+      setError(err.message.includes('email-already-in-use') 
+        ? 'This email is already registered.' 
+        : 'Failed to create an account.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-zinc-950 flex items-center justify-center px-4 py-12">
+      <div className="w-full max-w-lg bg-zinc-900 border border-zinc-800 p-6 sm:p-8 rounded-3xl shadow-2xl relative overflow-hidden">
+        
+        <div className="text-center mb-6">
+          <span className="text-xs font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full">
+            New Student Account
+          </span>
+          <h2 className="text-2xl sm:text-3xl font-black text-white mt-3">Join MVD Coaching 🎉</h2>
+          <p className="text-xs text-zinc-400 mt-1">Get instant access to notes, batches & test series.</p>
+        </div>
+
+        {error && (
+          <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-medium">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-3">
+          
+          <div>
+            <label className="block text-xs font-bold text-zinc-300 mb-1">Full Name</label>
+            <input 
+              type="text"
+              name="fullName"
+              required
+              value={formData.fullName}
+              onChange={handleChange}
+              placeholder="e.g. Rahul Sharma"
+              className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Email Address</label>
+              <input 
+                type="email"
+                name="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="student@gmail.com"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Mobile Number</label>
+              <input 
+                type="tel"
+                name="phone"
+                required
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="10-digit number"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Board / Division</label>
+              <select
+                name="board"
+                value={formData.board}
+                onChange={handleChange}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+              >
+                <option value="UP Board">UP Board (Hindi/English)</option>
+                <option value="CBSE">CBSE Board</option>
+                <option value="Computer Division">MVD Computer Center</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Class / Course</label>
+              <select
+                name="targetClass"
+                value={formData.targetClass}
+                onChange={handleChange}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+              >
+                <option value="Class 9th">Class 9th</option>
+                <option value="Class 10th">Class 10th</option>
+                <option value="Class 11th">Class 11th</option>
+                <option value="Class 12th">Class 12th</option>
+                <option value="ADCA / DCA">ADCA / DCA</option>
+                <option value="Tally / Coding">Tally / Coding</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Password</label>
+              <input 
+                type="password"
+                name="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-zinc-300 mb-1">Confirm Password</label>
+              <input 
+                type="password"
+                name="confirmPassword"
+                required
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="••••••••"
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+              />
+            </div>
+          </div>
+
+          <Button 
+            variant="primary" 
+            type="submit" 
+            className="w-full py-3 mt-4 text-sm"
+            disabled={loading}
+          >
+            {loading ? 'Creating Account...' : 'Complete Registration 🎓'}
+          </Button>
+
+        </form>
+
+        <p className="text-center text-xs text-zinc-400 mt-5">
+          Already registered?{' '}
+          <Link to="/login" className="text-cyan-400 font-bold hover:underline">
+            Login Now
+          </Link>
+        </p>
+
+      </div>
+    </div>
+  );
+};
+
+export default Signup;
