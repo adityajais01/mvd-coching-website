@@ -23,14 +23,14 @@ export const AuthProvider = ({ children }) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Save initial profile data in Firestore 'users' collection
     const userProfile = {
       uid: user.uid,
       fullName: extraDetails.fullName || '',
+      email: email,
       phone: extraDetails.phone || '',
       board: extraDetails.board || 'UP Board',
       class: extraDetails.targetClass || 'Class 10th',
-      role: 'student', // Default role
+      role: 'student', // Default role strictly student
       createdAt: new Date().toISOString(),
       isActive: true
     };
@@ -50,14 +50,13 @@ export const AuthProvider = ({ children }) => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
 
-    // Check if user already exists in Firestore, if not create record
     const userRef = doc(db, 'users', user.uid);
     const docSnap = await getDoc(userRef);
 
     if (!docSnap.exists()) {
       const newProfile = {
         uid: user.uid,
-        fullName: user.displayName || 'Student',
+        fullName: user.displayName || user.email.split('@')[0],
         email: user.email,
         phone: user.phoneNumber || '',
         board: 'UP Board',
@@ -75,24 +74,24 @@ export const AuthProvider = ({ children }) => {
   };
 
   // 4. Logout
-  const logout = () => {
+  const logout = async () => {
     setUserData(null);
+    setCurrentUser(null);
     return signOut(auth);
   };
 
-  // Listen to Auth State Changes
+  // 🟢 Fix 1: Properly handle Auth State Listener and Cleanup
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
       if (user) {
-        // Fetch Firestore User Document for Role & Profile info
         try {
           const userDoc = await getDoc(doc(db, 'users', user.uid));
           if (userDoc.exists()) {
             setUserData(userDoc.data());
           }
         } catch (error) {
-          console.error("Error fetching user data:", error);
+          console.error("Error fetching user profile:", error);
         }
       } else {
         setUserData(null);
@@ -100,13 +99,17 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
 
-    return unsubscribe;
+    return unsubscribe; // Unsubscribe directly return kar diya
   }, []);
+
+  // 🟢 Fix 2: Dynamic Role Cleaner
+  const cleanRole = (userData?.role || '').trim().toLowerCase();
+  const isAdmin = cleanRole === 'admin';
 
   const value = {
     currentUser,
     userData,
-    isAdmin: userData?.role === 'admin',
+    isAdmin,
     signup,
     login,
     loginWithGoogle,

@@ -23,7 +23,7 @@ export const toppersList = [
     classTarget: "Class 10th Board",
     score: "94.2%",
     board: "UP Board",
-    badge: "Subject Topper (Maths 100/100)",
+    badge: "Maths 100/100",
     year: "2025"
   },
   {

@@ -1,29 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Navbar from '../components/common/Navbar';
 import Footer from '../components/common/Footer';
 import NoteCard from '../components/common/NoteCard';
 import FloatingContact from '../components/common/FloatingContact';
-import { notesData } from '../data/notesData';
+import PdfViewerModal from '../pages/student/components/PdfViewerModal'; // In-App Viewer Modal
+import { db } from '../config/firebase';
+import { collection, getDocs, doc, updateDoc, arrayUnion } from 'firebase/firestore';
 
 const Store = ({ onOpenEnquiry }) => {
+  const { currentUser, userData } = useAuth();
+  const navigate = useNavigate();
+
+  const [notesList, setNotesList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState('all'); // 'all', 'free', 'paid'
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClass, setSelectedClass] = useState('All');
 
-  // Filter Logic
-  const filteredNotes = notesData.filter((item) => {
+  // In-App Viewer State
+  const [activePdf, setActivePdf] = useState(null); // { url, title }
+
+  // Firestore DB se live study materials fetch karein
+  useEffect(() => {
+    const fetchMaterials = async () => {
+      try {
+        setLoading(true);
+        const querySnapshot = await getDocs(collection(db, 'study_materials'));
+        const list = [];
+        querySnapshot.forEach((doc) => {
+          list.push({ id: doc.id, ...doc.data() });
+        });
+        setNotesList(list);
+      } catch (error) {
+        console.error("Error fetching study materials in Store:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchMaterials();
+  }, []);
+
+  // Filter Logic (Handles both targetClass & classTarget)
+  const filteredNotes = notesList.filter((item) => {
     // Type Filter (Free / Paid)
     if (filterType === 'free' && item.isPaid) return false;
     if (filterType === 'paid' && !item.isPaid) return false;
 
     // Class Filter
-    if (selectedClass !== 'All' && !item.classTarget.includes(selectedClass)) return false;
+    const targetClassStr = item.targetClass || item.classTarget || item.class || '';
+    if (selectedClass !== 'All' && !targetClassStr.includes(selectedClass)) return false;
 
     // Search Query
     if (
       searchQuery.trim() !== '' &&
-      !item.title.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !item.subject.toLowerCase().includes(searchQuery.toLowerCase())
+      !item.title?.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      !item.subject?.toLowerCase().includes(searchQuery.toLowerCase())
     ) {
       return false;
     }
@@ -31,18 +65,46 @@ const Store = ({ onOpenEnquiry }) => {
     return true;
   });
 
-  const handleAction = (note) => {
-    if (note.isPaid) {
-      // Paid notes ke liye direct WhatsApp purchase enquiry
-      const msg = `Hello Maa Vaishno Coaching! I want to buy/unlock *${note.title}* (${note.price}). Please share payment details.`;
-      window.open(`https://wa.me/919876543210?text=${encodeURIComponent(msg)}`, '_blank');
-    } else {
-      // Free notes ke liye direct download ya enquiry trigger
-      if (onOpenEnquiry) {
+  const handleAction = async (note) => {
+    // 🔒 1. FREE PDF NOTE ACTION (IN-APP SECURED VIEWING)
+    if (!note.isPaid) {
+      if (note.pdfUrl) {
+        setActivePdf({ url: note.pdfUrl, title: note.title });
+      } else if (onOpenEnquiry) {
         onOpenEnquiry();
       } else {
-        alert(`Downloading ${note.title}...`);
+        alert(`Note unavailable right now.`);
       }
+      return;
+    }
+
+    // 🔒 2. PAID NOTE PURCHASING ACTION (REQUIRES AUTHENTICATION)
+    if (!currentUser) {
+      alert('🔒 Please Login first to purchase or access study materials!');
+      navigate('/login');
+      return;
+    }
+
+    // Check if already purchased
+    const purchasedIds = userData?.purchasedMaterials || [];
+    if (purchasedIds.includes(note.id)) {
+      alert('You already own this note! Redirecting to your Dashboard Vault.');
+      navigate('/dashboard');
+      return;
+    }
+
+    // Purchase Process
+    try {
+      const userRef = doc(db, 'users', currentUser.uid);
+      await updateDoc(userRef, {
+        purchasedMaterials: arrayUnion(note.id)
+      });
+
+      alert(`🎉 Success! "${note.title}" has been unlocked in your Student Vault.`);
+      navigate('/dashboard');
+    } catch (error) {
+      console.error("Error purchasing note:", error);
+      alert("Purchase failed. Please try again or contact support.");
     }
   };
 
@@ -133,7 +195,12 @@ const Store = ({ onOpenEnquiry }) => {
           </div>
 
           {/* Notes Grid */}
-          {filteredNotes.length > 0 ? (
+          {loading ? (
+            <div className="text-center py-16 bg-zinc-900/40 border border-zinc-800/80 rounded-3xl">
+              <span className="text-2xl block mb-2">⏳</span>
+              <p className="text-xs text-zinc-400">Loading study vault materials...</p>
+            </div>
+          ) : filteredNotes.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredNotes.map((note) => (
                 <NoteCard key={note.id} note={note} onAction={handleAction} />
@@ -143,7 +210,11 @@ const Store = ({ onOpenEnquiry }) => {
             <div className="text-center py-16 bg-zinc-900/40 border border-zinc-800/80 rounded-3xl">
               <span className="text-4xl">📂</span>
               <h3 className="text-lg font-bold text-white mt-3">No Notes Found</h3>
-              <p className="text-xs text-zinc-400 mt-1">Try changing your search query or class filter.</p>
+              <p className="text-xs text-zinc-400 mt-1">
+                {notesList.length === 0 
+                  ? "No study materials uploaded by Admin yet. Please check back soon!" 
+                  : "Try changing your search query or class filter."}
+              </p>
             </div>
           )}
 
@@ -152,6 +223,15 @@ const Store = ({ onOpenEnquiry }) => {
 
       <Footer />
       <FloatingContact />
+
+      {/* 🔒 IN-APP PROTECTED PDF VIEWER MODAL */}
+      {activePdf && (
+        <PdfViewerModal
+          pdfUrl={activePdf.url}
+          pdfTitle={activePdf.title}
+          onClose={() => setActivePdf(null)}
+        />
+      )}
     </div>
   );
 };

@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/common/Button';
+import { db } from '../config/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -28,6 +30,21 @@ const Signup = () => {
     e.preventDefault();
     setError('');
 
+    // --- 1. SANITIZATION & VALIDATIONS ---
+    const sanitizedFullName = formData.fullName.trim();
+    const sanitizedEmail = formData.email.trim().toLowerCase();
+    const sanitizedPhone = formData.phone.trim();
+
+    if (!sanitizedFullName) {
+      return setError('Please enter your full name.');
+    }
+
+    // Phone validation (Indian 10-digit mobile number)
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(sanitizedPhone)) {
+      return setError('Please enter a valid 10-digit mobile number.');
+    }
+
     if (formData.password !== formData.confirmPassword) {
       return setError('Passwords do not match!');
     }
@@ -39,17 +56,36 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      await signup(formData.email, formData.password, {
-        fullName: formData.fullName,
-        phone: formData.phone,
+      // --- 2. DUPLICATE PHONE NUMBER CHECK ---
+      const phoneQuery = query(
+        collection(db, 'users'),
+        where('phone', '==', sanitizedPhone)
+      );
+      const phoneSnapshot = await getDocs(phoneQuery);
+
+      if (!phoneSnapshot.empty) {
+        setLoading(false);
+        return setError('This mobile number is already registered with another account.');
+      }
+
+      // --- 3. CREATE ACCOUNT ---
+      await signup(sanitizedEmail, formData.password, {
+        fullName: sanitizedFullName,
+        phone: sanitizedPhone,
         board: formData.board,
         targetClass: formData.targetClass
       });
+
       navigate('/dashboard');
     } catch (err) {
-      setError(err.message.includes('email-already-in-use') 
-        ? 'This email is already registered.' 
-        : 'Failed to create an account.');
+      console.error("Signup Error:", err);
+      if (err.message.includes('email-already-in-use')) {
+        setError('This email address is already registered. Please log in.');
+      } else if (err.message.includes('invalid-email')) {
+        setError('Invalid email address format.');
+      } else {
+        setError('Failed to create an account. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -108,6 +144,7 @@ const Signup = () => {
                 type="tel"
                 name="phone"
                 required
+                maxLength="10"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="10-digit number"

@@ -55,7 +55,7 @@ const ToppersCorner = () => {
               💬 Testimonials
             </span>
             <h3 className="text-xl sm:text-2xl font-bold text-white mt-2">
-              Kya Kehte Hain Humare Bacche Aur Parents?
+              Experiences Shared by Our Students and Parents
             </h3>
           </div>
           <div className="flex items-center gap-1 text-amber-400 text-sm font-bold bg-zinc-950 px-3 py-1.5 rounded-xl border border-zinc-800">

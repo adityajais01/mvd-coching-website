@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import Button from './Button';
-import { useAuth } from '../../context/AuthContext'; // 👈 Auth Context Added
+import { useAuth } from '../../context/AuthContext';
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { currentUser, userData, logout } = useAuth(); // 👈 Access Auth State
+  const { currentUser, userData, isAdmin, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -24,12 +24,10 @@ const Navbar = () => {
 
         {/* BRAND LOGO & TITLE */}
         <Link to="/" className="flex gap-3 items-center">
-          <div className="w-10 h-10 rounded-xl bg-linear-to-tr from-cyan-600 to-indigo-600 flex items-center justify-center font-bold text-xl text-white shadow-md">
-            M
-          </div>
+          <img className="w-12 h-12 rounded-full shadow-md object-cover" src="/images/logo01.jpeg" alt="MVD Logo" />
 
           <div className="flex flex-col">
-            <span className="md:text-2xl text-xl font-bold bg-linear-to-r from-zinc-100 via-cyan-400 to-indigo-400 bg-clip-text text-transparent block">
+            <span className="md:text-2xl text-xl font-bold bg-gradient-to-r from-zinc-100 via-cyan-400 to-indigo-400 bg-clip-text text-transparent block">
               MVD Coaching
             </span>
             <span className="text-[10px] tracking-wider text-zinc-400 font-medium uppercase">
@@ -68,11 +66,11 @@ const Navbar = () => {
           {currentUser ? (
             <div className="flex items-center gap-2">
               <Link
-                to="/dashboard"
-                className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5"
+                to={isAdmin ? "/admin-dashboard" : "/dashboard"}
+                className={`${isAdmin ? 'bg-amber-500/10 text-amber-400 border-amber-500/30' : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/30'} border text-xs font-bold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 hover:opacity-80`}
               >
-                <span>👤</span>
-                {userData?.fullName ? userData.fullName.split(' ')[0] : 'Dashboard'}
+                <span>{isAdmin ? '🛡️' : '👤'}</span>
+                {isAdmin ? 'Admin Panel' : (userData?.fullName ? userData.fullName.split(' ')[0] : 'Dashboard')}
               </Link>
               <button
                 onClick={handleLogout}
@@ -99,7 +97,7 @@ const Navbar = () => {
           )}
         </nav>
 
-        {/* MENU BUTTON (TOGGLE DROPDOWN) */}
+        {/* MENU BUTTON (MOBILE / DROPDOWN) */}
         <div className="flex items-center gap-2">
           <Button
             variant="secondary"
@@ -152,7 +150,7 @@ const Navbar = () => {
 
             {/* Portals & Dynamic Auth Area */}
             <div className="bg-zinc-950 p-4 rounded-xl border border-zinc-800 flex flex-col gap-2">
-              <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Student & Staff Portal</span>
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Student & Admin Portal</span>
               
               {currentUser ? (
                 <>
@@ -160,11 +158,11 @@ const Navbar = () => {
                     Logged in as: <strong className="text-cyan-400">{userData?.fullName || currentUser.email}</strong>
                   </p>
                   <Link 
-                    to="/dashboard" 
+                    to={isAdmin ? "/admin-dashboard" : "/dashboard"} 
                     onClick={() => setIsMenuOpen(false)} 
                     className="text-cyan-400 font-semibold text-sm hover:underline mt-1"
                   >
-                    🎓 Go to Student Dashboard
+                    {isAdmin ? '🛡️ Go to Admin Dashboard' : '🎓 Go to Student Dashboard'}
                   </Link>
                   <button 
                     onClick={handleLogout} 
@@ -194,7 +192,7 @@ const Navbar = () => {
 
               <div className="pt-2 mt-2 border-t border-zinc-800">
                 <Link to="/login" onClick={() => setIsMenuOpen(false)} className="text-[11px] text-zinc-500 hover:text-zinc-300">
-                  🔒 Admin / Staff Access
+                  🔒 Admin Portal Access
                 </Link>
               </div>
             </div>

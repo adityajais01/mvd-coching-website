@@ -1,0 +1,8 @@
+[
+  {
+    "origin": ["*"],
+    "method": ["GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"],
+    "responseHeader": ["Content-Type", "x-goog-upload-protocol", "x-goog-upload-command"],
+    "maxAgeSeconds": 3600
+  }
+]

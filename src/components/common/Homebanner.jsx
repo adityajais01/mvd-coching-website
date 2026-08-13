@@ -20,7 +20,6 @@ export const homeBanners = [
     primaryBtnLink: "/courses",
     secondaryBtnText: "Contact Us",
     secondaryBtnLink: "/contact"
-
   },
   {
     id: 3,
@@ -29,7 +28,18 @@ export const homeBanners = [
     title: "Download Class 10th & 12th Sample Papers",
     subtitle: "Previous 5 Years Question Papers with Complete Video Solutions.",
     primaryBtnText: "Go to PDF Store 📥",
-    primaryBtnLink: "/store",
-    
-  }
+    primaryBtnLink: "/store"
+  },
+  {
+    id: 4,
+    image: "/images/mvd admission01.jpeg" // 👈 Fixed path (removed public/)
+  },
+  {
+    id: 5,
+    image: "/images/mvd banner01.jpeg"    // 👈 Fixed path
+  },
+  // {
+  //   id: 6,
+  //   image: "/images/mvd banner03.jpeg"    // 👈 Fixed path
+  // }
 ];
