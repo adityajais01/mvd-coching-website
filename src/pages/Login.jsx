@@ -11,7 +11,14 @@ const Login = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { login, loginWithGoogle } = useAuth();
+  // Forgot Password Modal State
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetMessage, setResetMessage] = useState('');
+  const [resetError, setResetError] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+
+  const { login, loginWithGoogle, resetPassword } = useAuth();
   const navigate = useNavigate();
 
   // Redirection fix with .trim() and .toLowerCase()
@@ -22,7 +29,6 @@ const Login = () => {
 
       if (userDocSnap.exists()) {
         const rawRole = userDocSnap.data().role || '';
-        // 🟢 FIX: Extra space remove (.trim()) aur lowercase check
         const cleanRole = rawRole.trim().toLowerCase();
 
         if (cleanRole === 'admin') {
@@ -73,6 +79,26 @@ const Login = () => {
     }
   };
 
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    setResetError('');
+    setResetMessage('');
+    setResetLoading(true);
+
+    try {
+      await resetPassword(resetEmail);
+      setResetMessage('Password reset link has been sent to your email! Please check your inbox.');
+    } catch (err) {
+      if (err.message.includes('user-not-found')) {
+        setResetError('No account registered with this email address.');
+      } else {
+        setResetError('Failed to send reset email. Please verify your email ID.');
+      }
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
   return (
     <div className="h-screen w-full bg-zinc-950">
       <div className="min-h-[80vh] flex items-center justify-center px-4 py-12">
@@ -109,7 +135,21 @@ const Login = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-zinc-300 mb-1">Password</label>
+              <div className="flex justify-between items-center mb-1">
+                <label className="block text-xs font-bold text-zinc-300">Password</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setResetEmail(email);
+                    setResetError('');
+                    setResetMessage('');
+                    setIsForgotModalOpen(true);
+                  }}
+                  className="text-xs text-cyan-400 hover:text-cyan-300 font-semibold cursor-pointer"
+                >
+                  Forgot Password?
+                </button>
+              </div>
               <input 
                 type="password"
                 required
@@ -153,6 +193,59 @@ const Login = () => {
 
         </div>
       </div>
+
+      {/* 🔑 FORGOT PASSWORD MODAL */}
+      {isForgotModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
+          <div className="bg-zinc-900 border border-zinc-800 rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl relative">
+            <button 
+              onClick={() => setIsForgotModalOpen(false)}
+              className="absolute top-4 right-4 text-zinc-400 hover:text-white w-8 h-8 flex items-center justify-center bg-zinc-800 rounded-full cursor-pointer"
+            >
+              ✕
+            </button>
+
+            <span className="text-[10px] font-bold text-cyan-400 uppercase tracking-wider bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-full">
+              Account Recovery
+            </span>
+            <h3 className="text-xl font-black text-white mt-2 mb-1">Reset Password 🔑</h3>
+            <p className="text-xs text-zinc-400 mb-4">
+              Enter your registered email ID to receive a password reset link.
+            </p>
+
+            {resetMessage && (
+              <div className="mb-4 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+                {resetMessage}
+              </div>
+            )}
+
+            {resetError && (
+              <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs font-medium">
+                {resetError}
+              </div>
+            )}
+
+            <form onSubmit={handlePasswordReset} className="space-y-3">
+              <input
+                type="email"
+                required
+                placeholder="Registered Email ID"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+              />
+
+              <button
+                type="submit"
+                disabled={resetLoading}
+                className="w-full bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer"
+              >
+                {resetLoading ? 'Sending link...' : 'Send Reset Link 📩'}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

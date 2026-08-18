@@ -19,7 +19,7 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { signup } = useAuth();
+  const { signup, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -30,33 +30,48 @@ const Signup = () => {
     e.preventDefault();
     setError('');
 
-    // --- 1. SANITIZATION & VALIDATIONS ---
+    // 1. Sanitization
     const sanitizedFullName = formData.fullName.trim();
     const sanitizedEmail = formData.email.trim().toLowerCase();
     const sanitizedPhone = formData.phone.trim();
+    const password = formData.password;
+    const confirmPassword = formData.confirmPassword;
 
-    if (!sanitizedFullName) {
-      return setError('Please enter your full name.');
+    // 2. Validation Checks
+    if (!sanitizedFullName || sanitizedFullName.length < 3) {
+      return setError('Full name must be at least 3 characters long.');
+    }
+    if (sanitizedFullName.length > 50) {
+      return setError('Full name cannot exceed 50 characters.');
     }
 
-    // Phone validation (Indian 10-digit mobile number)
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!sanitizedEmail || !emailRegex.test(sanitizedEmail)) {
+      return setError('Please enter a valid email address (e.g. name@gmail.com).');
+    }
+    if (sanitizedEmail.length > 80) {
+      return setError('Email address cannot exceed 80 characters.');
+    }
+
     const phoneRegex = /^[6-9]\d{9}$/;
     if (!phoneRegex.test(sanitizedPhone)) {
-      return setError('Please enter a valid 10-digit mobile number.');
+      return setError('Please enter a valid 10-digit mobile number (starts with 6, 7, 8, or 9).');
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      return setError('Passwords do not match!');
-    }
-
-    if (formData.password.length < 6) {
+    if (password.length < 6) {
       return setError('Password must be at least 6 characters long.');
+    }
+    if (password.length > 32) {
+      return setError('Password cannot exceed 32 characters.');
+    }
+    if (password !== confirmPassword) {
+      return setError('Passwords do not match!');
     }
 
     setLoading(true);
 
     try {
-      // --- 2. DUPLICATE PHONE NUMBER CHECK ---
+      // 3. Duplicate Phone Check
       const phoneQuery = query(
         collection(db, 'users'),
         where('phone', '==', sanitizedPhone)
@@ -68,8 +83,8 @@ const Signup = () => {
         return setError('This mobile number is already registered with another account.');
       }
 
-      // --- 3. CREATE ACCOUNT ---
-      await signup(sanitizedEmail, formData.password, {
+      // 4. Create Account
+      await signup(sanitizedEmail, password, {
         fullName: sanitizedFullName,
         phone: sanitizedPhone,
         board: formData.board,
@@ -91,10 +106,26 @@ const Signup = () => {
     }
   };
 
+  // 🌐 Google Sign-Up Handler
+  const handleGoogleSignUp = async () => {
+    try {
+      setError('');
+      setLoading(true);
+      await loginWithGoogle();
+      navigate('/dashboard');
+    } catch (err) {
+      console.error("Google Signup Error:", err);
+      setError('Google registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full bg-zinc-950 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-lg bg-zinc-900 border border-zinc-800 p-6 sm:p-8 rounded-3xl shadow-2xl relative overflow-hidden">
         
+        {/* Header */}
         <div className="text-center mb-6">
           <span className="text-xs font-bold uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full">
             New Student Account
@@ -117,6 +148,7 @@ const Signup = () => {
               type="text"
               name="fullName"
               required
+              maxLength={50}
               value={formData.fullName}
               onChange={handleChange}
               placeholder="e.g. Rahul Sharma"
@@ -131,6 +163,7 @@ const Signup = () => {
                 type="email"
                 name="email"
                 required
+                maxLength={80}
                 value={formData.email}
                 onChange={handleChange}
                 placeholder="student@gmail.com"
@@ -144,7 +177,7 @@ const Signup = () => {
                 type="tel"
                 name="phone"
                 required
-                maxLength="10"
+                maxLength={10}
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="10-digit number"
@@ -193,6 +226,8 @@ const Signup = () => {
                 type="password"
                 name="password"
                 required
+                minLength={6}
+                maxLength={32}
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="••••••••"
@@ -206,6 +241,8 @@ const Signup = () => {
                 type="password"
                 name="confirmPassword"
                 required
+                minLength={6}
+                maxLength={32}
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 placeholder="••••••••"
@@ -224,6 +261,21 @@ const Signup = () => {
           </Button>
 
         </form>
+
+        {/* Divider */}
+        <div className="relative my-6 text-center">
+          <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-800" /></div>
+          <span className="relative bg-zinc-900 px-3 text-[11px] text-zinc-500 uppercase tracking-wider font-semibold">OR</span>
+        </div>
+
+        {/* 🌐 Sign Up with Google Button */}
+        <button
+          onClick={handleGoogleSignUp}
+          disabled={loading}
+          className="w-full bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-bold py-2.5 rounded-xl text-xs sm:text-sm transition duration-300 flex items-center justify-center gap-2 active:scale-95 cursor-pointer disabled:opacity-50"
+        >
+          <span>🌐</span> Sign up with Google
+        </button>
 
         <p className="text-center text-xs text-zinc-400 mt-5">
           Already registered?{' '}

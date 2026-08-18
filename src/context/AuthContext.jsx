@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import { 
   onAuthStateChanged, 
   signInWithEmailAndPassword, 
   createUserWithEmailAndPassword, 
   signOut,
-  signInWithPopup
+  signInWithPopup,
+  sendPasswordResetEmail
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../config/firebase';
@@ -19,7 +20,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   // 1. Email + Password Signup
-  const signup = async (email, password, extraDetails) => {
+  const signup = async (email, password, extraDetails = {}) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
@@ -31,6 +32,8 @@ export const AuthProvider = ({ children }) => {
       board: extraDetails.board || 'UP Board',
       class: extraDetails.targetClass || 'Class 10th',
       role: 'student', // Default role strictly student
+      purchasedMaterials: [],
+      enrolledBatches: [],
       createdAt: new Date().toISOString(),
       isActive: true
     };
@@ -62,6 +65,8 @@ export const AuthProvider = ({ children }) => {
         board: 'UP Board',
         class: 'Class 10th',
         role: 'student',
+        purchasedMaterials: [],
+        enrolledBatches: [],
         createdAt: new Date().toISOString(),
         isActive: true
       };
@@ -73,14 +78,19 @@ export const AuthProvider = ({ children }) => {
     return result;
   };
 
-  // 4. Logout
+  // 4. Password Reset Email Handler
+  const resetPassword = (email) => {
+    return sendPasswordResetEmail(auth, email);
+  };
+
+  // 5. Logout
   const logout = async () => {
     setUserData(null);
     setCurrentUser(null);
     return signOut(auth);
   };
 
-  // 🟢 Fix 1: Properly handle Auth State Listener and Cleanup
+  // Auth State Listener
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
@@ -99,10 +109,10 @@ export const AuthProvider = ({ children }) => {
       setLoading(false);
     });
 
-    return unsubscribe; // Unsubscribe directly return kar diya
+    return unsubscribe;
   }, []);
 
-  // 🟢 Fix 2: Dynamic Role Cleaner
+  // Dynamic Role Cleaner
   const cleanRole = (userData?.role || '').trim().toLowerCase();
   const isAdmin = cleanRole === 'admin';
 
@@ -113,6 +123,7 @@ export const AuthProvider = ({ children }) => {
     signup,
     login,
     loginWithGoogle,
+    resetPassword,
     logout
   };
 

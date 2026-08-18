@@ -12,6 +12,7 @@ import ProtectedRoute from './components/common/ProtectedRoute';
 import StudentDashboard from './pages/student/StudentDashboard';
 import BatchDetailsPage from './pages/student/BatchDetailsPage'; // 👈 Imported
 import CoursesPage from './pages/courses/CoursesPage';
+import FacultyPage from './pages/FacultyPage';
 
 function App() {
   return (
@@ -26,7 +27,7 @@ function App() {
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-
+        <Route path='/faculty' element={ <FacultyPage/> }/>
         {/* PROTECTED STUDENT DASHBOARD */}
         <Route
           path="/dashboard"

@@ -1,12 +1,12 @@
-import React from 'react';
 
-// 📱 REAL PRODUCTION NUMBERS & CONFIGURATION
-const PHONE_NUMBER = "+919876543210"; // ⚠️ Replace with your Real Mobile Number
-const WHATSAPP_NUMBER = "919876543210"; // ⚠️ Replace with your Real WhatsApp Number (with country code, no +)
+
+//  NUMBERS & CONFIGURATION
+const PHONE_NUMBER = "+919235763122";  
+const WHATSAPP_NUMBER = "+919235763122";  
 
 const FloatingContact = () => {
   const whatsappMessage = encodeURIComponent(
-    "Hello Maa Vaishno Coaching / MVD Computer Center! I want to inquire about Admission, Batches & Demo Classes."
+    "Hello Maa Vaishno Coaching Center & MVD Computer Institute! I want to inquire about Admission, Batches & Demo Classes."
   );
 
   return (
@@ -41,7 +41,7 @@ const FloatingContact = () => {
         </span>
 
         {/* Hover Tooltip */}
-        <span className="absolute right-16 bg-zinc-900 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-lg border border-zinc-700 opacity-0 group-hover:opacity-100 transition duration-300 whitespace-nowrap shadow-md pointer-events-none">
+        <span className="absolute right-16 bg-zinc-900 text-emerald-100 text-xs font-bold px-3 py-1.5 rounded-lg border border-zinc-700 opacity-0 group-hover:opacity-100 transition duration-300 whitespace-nowrap shadow-md pointer-events-none">
           Chat on WhatsApp (Instant Reply)
         </span>
       </a>

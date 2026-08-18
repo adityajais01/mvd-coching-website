@@ -1,9 +1,9 @@
-import React from 'react';
-import Button from '../common/Button';
+
+
 
 const AdmissionCTA = () => {
   return (
-    <section className="mt-16 sm:mt-24 relative overflow-hidden rounded-3xl bg-gradient-to-r from-zinc-900 via-cyan-950/40 to-zinc-900 border border-cyan-500/30 p-8 sm:p-12 shadow-2xl">
+    <section className="mt-16 sm:mt-24 relative overflow-hidden rounded-3xl bg-linear-to-r from-zinc-900 via-cyan-950/40 to-zinc-900 border border-cyan-500/30 p-8 sm:p-12 shadow-2xl">
       {/* Background Subtle Glow Effect */}
       <div className="absolute top-0 right-0 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl -z-10 pointer-events-none" />
 
@@ -20,12 +20,10 @@ const AdmissionCTA = () => {
           </p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-4 w-full lg:w-auto">
-          <Button variant="primary" className="w-full sm:w-auto px-8 py-3 text-sm font-bold">
-            Book Free Demo Class 🚀
-          </Button>
+        <div className="flex flex-col sm:flex-row items-center w-full lg:w-auto justify-center">
+          
           <a
-            href="tel:+919876543210"
+            href="tel:+91"
             className="w-full sm:w-auto text-center px-6 py-3 rounded-xl border border-zinc-700 hover:border-zinc-500 text-zinc-300 hover:text-white font-semibold text-sm transition bg-zinc-900/80"
           >
             📞 Contact Us

@@ -1,8 +1,11 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { facultyMembers } from '../../data/facultyData';
 
-
 const StarFaculty = () => {
+  // Home section par sirf Star Faculties
+  const starFaculties = facultyMembers.filter(fac => fac.isStar);
+
   return (
     <section className="mt-14 sm:mt-20">
       {/* Section Header */}
@@ -18,20 +21,37 @@ const StarFaculty = () => {
         </p>
       </div>
 
-      {/* Faculty Cards Grid */}
+      {/* 🌟 Star Faculties Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {facultyMembers.map((fac, idx) => (
+        {starFaculties.map((fac) => (
           <div 
-            key={idx}
+            key={fac.id}
             className="bg-zinc-900/60 border border-zinc-800 rounded-2xl p-5 hover:border-cyan-500/40 transition duration-300 hover:-translate-y-1 flex flex-col justify-between"
           >
             <div>
-              {/* Faculty Avatar Placeholder */}
-              <div className="relative w-full h-44 bg-zinc-800 rounded-xl overflow-hidden mb-4 border border-zinc-700/50 flex flex-col items-center justify-center text-zinc-500">
-                <span className="text-4xl mb-1">👨‍🏫</span>
-                <span className="text-[11px] text-zinc-400">Faculty Photo</span>
+              {/* Faculty Photo Container */}
+              <div className="relative w-full h-48 bg-zinc-800 rounded-xl overflow-hidden mb-4 border border-zinc-700/50 flex flex-col items-center justify-center text-zinc-500">
+                {fac.photo ? (
+                  <img 
+                    src={fac.photo} 
+                    alt={fac.name} 
+                    className="w-full h-full object-cover object-top"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.nextSibling.style.display = 'flex';
+                    }}
+                  />
+                ) : null}
                 
-                <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-md">
+                {/* Fallback agar image na ho ya load na ho */}
+                <div 
+                  className={`flex-col items-center justify-center w-full h-full ${fac.photo ? 'hidden' : 'flex'}`}
+                >
+                  <span className="text-4xl mb-1">👨‍🏫</span>
+                  <span className="text-[11px] text-zinc-400 font-medium">Faculty Member</span>
+                </div>
+                
+                <span className="absolute top-2 right-2 text-[10px] font-bold px-2 py-0.5 bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 rounded-md backdrop-blur-md">
                   {fac.badge}
                 </span>
               </div>
@@ -46,6 +66,17 @@ const StarFaculty = () => {
             </div>
           </div>
         ))}
+      </div>
+
+      {/* 🚀 Dedicated Page Link Button */}
+      <div className="text-center mt-10">
+        <Link
+          to="/faculty"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-zinc-900 hover:bg-zinc-800 text-cyan-400 border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl font-bold text-xs sm:text-sm transition duration-300 shadow-lg shadow-cyan-500/5 active:scale-95 cursor-pointer"
+        >
+          <span>View All Faculty Members & Departments</span>
+          <span>→</span>
+        </Link>
       </div>
     </section>
   );

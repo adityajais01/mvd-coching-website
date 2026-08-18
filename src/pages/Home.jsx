@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/common/Navbar';
 import BannerSlider from '../components/common/BannerSlider';
-import StatsBar from '../components/common/StatsBar';
+// import StatsBar from '../components/common/StatsBar';
 import FeaturedBatches from '../components/home/PopularBatchesSection';
 import StudyMaterialSection from '../components/home/StudyMaterialSection';
 import WhyChooseUs from '../components/home/WhyChooseUs';
@@ -42,7 +42,7 @@ const Home = () => {
         <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 pb-16">
           <BannerSlider banners={banners} autoSlideInterval={4000} />
           <DirectorMessage />
-          <StatsBar />
+          {/* <StatsBar /> */}
           <FeaturedBatches onOpenEnquiry={() => setIsModalOpen(true)} />
           <StarFaculty />
           <ToppersCorner />
