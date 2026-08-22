@@ -3,17 +3,15 @@ import React from 'react';
 const DirectorMessage = () => {
   return (
     <div className="mt-14 sm:mt-20 space-y-8">
-      
-      {/* ========================================================= */}
-      {/* 🚀 SECTION 1: DUAL BRANDING & INSTITUTE HIGHLIGHTS BANNER */}
-      {/* ========================================================= */}
+
+      {/* tution branding  */}
       <section className="relative overflow-hidden rounded-3xl bg-zinc-900 border border-zinc-800/90 p-6 sm:p-10 shadow-2xl">
         {/* Subtle Glow Behind Branding */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/4 w-80 h-80 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-6 text-center lg:text-left">
-          
+
           {/* Main Titles */}
           <div className="max-w-2xl">
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-2">
@@ -21,7 +19,7 @@ const DirectorMessage = () => {
                 🏆 Premier Educational Hub
               </span>
               <span className="text-[11px] font-extrabold uppercase tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/30 px-3 py-1 rounded-full">
-                💻 Govt. & ISO Certified
+                💻 Govt. registered
               </span>
             </div>
 
@@ -30,7 +28,7 @@ const DirectorMessage = () => {
             </h1>
 
             <h2 className="text-lg sm:text-2xl font-bold text-amber-400 mt-1 flex items-center justify-center lg:justify-start gap-2">
-              <span>💻</span> MVD Computer Center
+              <span>💻</span> & MVD Computer Institute
               <span className="text-[11px] font-bold text-zinc-300 bg-zinc-800/90 px-2.5 py-0.5 rounded-md border border-zinc-700">
                 IT & Skill Division
               </span>
@@ -63,25 +61,25 @@ const DirectorMessage = () => {
         </div>
       </section>
 
-      {/* ========================================================= */}
-      {/* 👨‍🏫 SECTION 2: DIRECTOR'S DESK & VISION SECTION */}
-      {/* ========================================================= */}
+
+      {/* SECTION 2: DIRECTOR'S DESK & VISION SECTION */}
+
       <section className="relative overflow-hidden rounded-3xl bg-zinc-900/90 border border-zinc-800/80 p-6 sm:p-10 shadow-2xl">
-        
+
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-          
+
           {/* Left Column: Director Photo & Profile Card */}
           <div className="lg:col-span-4 flex flex-col items-center text-center">
-            
+
             {/* Outer Frame Glow Effect */}
             <div className="relative p-1.5 rounded-3xl bg-linear-to-b from-cyan-500/40 via-zinc-800 to-amber-500/30 shadow-2xl">
-              
+
               <div className="relative w-48 h-48 sm:w-56 sm:h-56 rounded-2xl overflow-hidden bg-zinc-950 group">
                 {/* Director Photo */}
-                <img 
-                  src="/images/director.jpg" 
-                  alt="Director - Er. Manish Verma" 
-                  className="w-full h-full object-cover transition duration-300 group-hover:scale-105 relative z-10"
+                <img
+                  src="/images/director_01.jpg"
+                  alt="Director - Lakshman Gupta"
+                  className="w-full h-full object-cover object-top transition duration-300 group-hover:scale-105 relative z-10"
                   onError={(e) => {
                     e.target.style.display = 'none';
                   }}
@@ -116,7 +114,7 @@ const DirectorMessage = () => {
 
           {/* Right Column: Director Message Content */}
           <div className="lg:col-span-8 flex flex-col justify-center">
-            
+
             <div className="flex items-center gap-2 mb-4">
               <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/30 px-3.5 py-1 rounded-full">
                 💬 Director's Message
@@ -135,9 +133,9 @@ const DirectorMessage = () => {
 
             <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed mb-6 space-y-2">
               <span>At Maa Vaishno Coaching Center and MVD Computer Center, we empower students through </span>
-              <strong className="text-cyan-300 font-bold">quality education, personalized mentoring, strong conceptual understanding</strong> 
+              <strong className="text-cyan-300 font-bold">quality education, personalized mentoring, strong conceptual understanding</strong>
               <span> and </span>
-              <strong className="text-amber-300 font-bold">Practical Computer & IT Training</strong> 
+              <strong className="text-amber-300 font-bold">Practical Computer & IT Training</strong>
               <span> to achieve academic excellence and career success..</span>
             </p>
 
@@ -145,7 +143,7 @@ const DirectorMessage = () => {
 
             {/* Key Pillars Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-5 border-t border-zinc-800/80">
-            
+
               <div className="bg-zinc-950/80 p-3.5 rounded-2xl border border-zinc-800/80 text-center sm:text-left">
                 <span className="block text-xl font-black text-cyan-400">10,000+</span>
                 <span className="text-[11px] text-zinc-400 font-medium">Students Mentored</span>

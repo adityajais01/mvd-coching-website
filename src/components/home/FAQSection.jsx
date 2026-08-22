@@ -2,29 +2,29 @@ import React, { useState } from 'react';
 
 const faqs = [
   {
-    q: "Kya Maa Vaishno Coaching me Demo Class free mil sakti hai?",
-    a: "Haan, aap 3 days tak kisi bhi Class (9th, 10th, 11th, 12th) ya Computer Course me bilkul Free Demo Class attend kar sakte hain."
+    q: "Can I get a free demo class at Maa Vaishno Coaching Center?",
+    a: "Yes! You can attend a free 3-day demo class for any Class (9th, 10th, 11th, or 12th) or any course at Maa Vaishno Coaching Center & Computer Institute."
   },
   {
-    q: "Offline batches me fees structure kaisa hota hai?",
-    a: "Offline center me aap Monthly Fees submit kar sakte hain. Koi advance lump sum pressure nahi hota. Har month pocket-friendly per-month fees li jaati hai."
+    q: "What is the fee structure for offline batches?",
+    a: "Our offline batches follow a monthly fee system. There is no pressure to pay a large amount in advance, making it convenient and affordable for students."
   },
   {
-    q: "Kya MVD Computer Center ke certificates valid hain?",
-    a: "Bilkul! MVD Computer Center ke DCA, ADCA, Tally aur Computer Typing certificates ISO Certified hain jo sabhi Govt & Private Jobs me valid hain."
+    q: "Are the certificates from Maa Vaishno Coaching Center & Computer Institute valid?",
+    a: "Yes! Certificates for courses such as DCA, ADCA, Tally, and Computer Typing are ISO Certified and are recognized for both Government and Private sector job opportunities."
   },
   {
-    q: "Bacchon ke test results aur attendance ki jankari parents ko kaise milti hai?",
-    a: "Hum har Sunday Board Pattern Weekly Test karate hain aur test report card + attendance direct parents ke WhatsApp number par send ki jaati hai. Regular PTM bhi hoti hai."
+    q: "How do parents receive updates about attendance and test performance?",
+    a: "Weekly board-pattern tests are conducted every Sunday. Test reports and attendance updates are shared directly with parents through WhatsApp, and regular Parent-Teacher Meetings (PTMs) are also organized."
   },
   {
-    q: "Kya Online Batches ke saath PDF Notes aur Homework milta hai?",
-    a: "Haan, Online + Offline sabhi students ko Chapterwise NCERT Handwritten Notes, Daily Practice Problems (DPP) aur 5 Years PYQ Solutions PDF Free milte hain."
+    q: "Do online batches include PDF notes and homework?",
+    a: "Yes! Students enrolled in both online and offline batches receive chapter-wise handwritten notes, Daily Practice Problems (DPPs), and previous years' solved question papers in PDF format."
   }
 ];
 
 const FAQSection = () => {
-  const [openIndex, setOpenIndex] = useState(0); // Pehla question default open rahega
+  const [openIndex, setOpenIndex] = useState(0); // First question remains open by default
 
   const toggleFAQ = (index) => {
     setOpenIndex(openIndex === index ? null : index);
@@ -41,14 +41,14 @@ const FAQSection = () => {
           Frequently Asked Questions (FAQs)
         </h2>
         <p className="text-zinc-400 text-sm mt-2">
-          Admission, Batches, Fees aur Computer Center se jude sabhi aam sawalon ke jawab yahan padhein.
+          Find answers to the most common questions about admissions, batches, fees, and courses at Maa Vaishno Coaching Center & Computer Institute.
         </p>
       </div>
 
       {/* Accordion List */}
       <div className="space-y-4">
         {faqs.map((faq, index) => (
-          <div 
+          <div
             key={index}
             className="bg-zinc-900/80 border border-zinc-800 rounded-2xl overflow-hidden transition duration-300"
           >

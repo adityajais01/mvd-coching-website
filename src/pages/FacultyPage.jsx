@@ -7,15 +7,57 @@ import { facultyMembers } from '../data/facultyData';
 const FacultyPage = () => {
   const [activeTab, setActiveTab] = useState('all');
 
-  const filteredFaculties = activeTab === 'all'
-    ? facultyMembers
-    : facultyMembers.filter(fac => fac.department === activeTab);
+  // 🔍 Universal matching function (Handles string, array, lowercase, spaces)
+  const isDepartmentMatched = (facultyDept, tabId) => {
+    if (tabId === 'all') return true;
 
+    // Normalize department into array
+    const depts = Array.isArray(facultyDept) ? facultyDept : [facultyDept];
+
+    return depts.some(d => {
+      if (!d) return false;
+      const clean = d.toString().toLowerCase().replace(/[^a-z0-9]/g, '');
+
+      if (tabId === 'upboard') {
+        return clean.includes('up') || clean.includes('upboard');
+      }
+      if (tabId === 'cbse') {
+        return clean.includes('cbse');
+      }
+      if (tabId === 'computer') {
+        return clean.includes('computer') || clean.includes('it');
+      }
+      return clean === tabId.toLowerCase();
+    });
+  };
+
+  // Filtered List
+  const filteredFaculties = facultyMembers.filter(fac => 
+    isDepartmentMatched(fac.department, activeTab)
+  );
+
+  // Dynamic Tabs with Live Counts
   const departments = [
-    { id: 'all', label: 'All Departments', count: facultyMembers.length },
-    { id: 'upboard', label: '📖 UP Board Hindi Medium', count: facultyMembers.filter(f => f.department === 'upboard').length },
-    { id: 'cbse', label: '🎓 CBSE English Medium', count: facultyMembers.filter(f => f.department === 'cbse').length },
-    { id: 'computer', label: '💻 Computer & IT Wing', count: facultyMembers.filter(f => f.department === 'computer').length },
+    { 
+      id: 'all', 
+      label: 'All Departments', 
+      count: facultyMembers.length 
+    },
+    { 
+      id: 'upboard', 
+      label: '📖 UP Board Hindi Medium', 
+      count: facultyMembers.filter(f => isDepartmentMatched(f.department, 'upboard')).length 
+    },
+    { 
+      id: 'cbse', 
+      label: '🎓 CBSE English Medium', 
+      count: facultyMembers.filter(f => isDepartmentMatched(f.department, 'cbse')).length 
+    },
+    { 
+      id: 'computer', 
+      label: '💻 Computer & IT Wing', 
+      count: facultyMembers.filter(f => isDepartmentMatched(f.department, 'computer')).length 
+    },
   ];
 
   return (
@@ -24,7 +66,8 @@ const FacultyPage = () => {
         <Navbar />
 
         <main className="max-w-7xl mx-auto px-4 sm:px-8 py-10">
-          {/* Header Section */}
+          
+          {/* Header */}
           <div className="text-center max-w-3xl mx-auto mb-10">
             <span className="text-xs font-bold uppercase tracking-wider text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-3.5 py-1 rounded-full">
               Teaching Faculty Directory
@@ -71,7 +114,9 @@ const FacultyPage = () => {
                         className="w-full h-full object-cover object-top"
                         onError={(e) => {
                           e.target.style.display = 'none';
-                          e.target.nextSibling.style.display = 'flex';
+                          if (e.target.nextSibling) {
+                            e.target.nextSibling.style.display = 'flex';
+                          }
                         }}
                       />
                     ) : null}
@@ -98,6 +143,7 @@ const FacultyPage = () => {
               </div>
             ))}
           </div>
+
         </main>
       </div>
 

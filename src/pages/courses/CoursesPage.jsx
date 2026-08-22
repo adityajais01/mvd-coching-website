@@ -136,7 +136,7 @@ const CoursesPage = () => {
               Our Target Batches & Courses
             </h1>
             <p className="text-zinc-400 text-sm sm:text-base mt-2">
-              Class 9th–12th UP/CBSE Board exam special batches aur MVD Computer Center ke ISO Certified skill courses.
+              Special exam-focused batches for Classes 9–12 (UP/CBSE Board) and skill courses at Maa Vaishno Coaching Center & Computer Institute.
             </p>
           </div>
 

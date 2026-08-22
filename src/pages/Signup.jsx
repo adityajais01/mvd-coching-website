@@ -16,6 +16,7 @@ const Signup = () => {
     confirmPassword: ''
   });
 
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -219,42 +220,61 @@ const Signup = () => {
             </div>
           </div>
 
+          {/* Password & Confirm Password with Show/Hide Toggle */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-bold text-zinc-300 mb-1">Password</label>
-              <input 
-                type="password"
-                name="password"
-                required
-                minLength={6}
-                maxLength={32}
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
-              />
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  name="password"
+                  required
+                  minLength={6}
+                  maxLength={32}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 pr-10 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-cyan-400 transition text-xs cursor-pointer p-1"
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </div>
 
             <div>
               <label className="block text-xs font-bold text-zinc-300 mb-1">Confirm Password</label>
-              <input 
-                type="password"
-                name="confirmPassword"
-                required
-                minLength={6}
-                maxLength={32}
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="••••••••"
-                className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
-              />
+              <div className="relative">
+                <input 
+                  type={showPassword ? "text" : "password"}
+                  name="confirmPassword"
+                  required
+                  minLength={6}
+                  maxLength={32}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="••••••••"
+                  className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2 pr-10 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-cyan-400 transition text-xs cursor-pointer p-1"
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </div>
           </div>
 
           <Button 
             variant="primary" 
             type="submit" 
-            className="w-full py-3 mt-4 text-sm"
+            className="w-full py-3 mt-4 text-sm cursor-pointer"
             disabled={loading}
           >
             {loading ? 'Creating Account...' : 'Complete Registration 🎓'}

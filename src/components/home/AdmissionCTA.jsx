@@ -1,6 +1,3 @@
-
-
-
 const AdmissionCTA = () => {
   return (
     <section className="mt-16 sm:mt-24 relative overflow-hidden rounded-3xl bg-linear-to-r from-zinc-900 via-cyan-950/40 to-zinc-900 border border-cyan-500/30 p-8 sm:p-12 shadow-2xl">
@@ -16,7 +13,7 @@ const AdmissionCTA = () => {
             Start Your Journey Towards Board Exam Success!
           </h2>
           <p className="text-zinc-300 text-sm sm:text-base mt-3 leading-relaxed">
-            Join MVD Coaching for expert guidance, personalized learning, and proven strategies to achieve outstanding results in Class 9th–12th Board Exams. Book your free demo class or visit our center today.
+            Join Maa Vaishno Coaching Center for expert guidance, personalized learning, and proven strategies to achieve outstanding results in Class 9th–12th Board Exams. Book your free demo class or visit our center today.
           </p>
         </div>
 
