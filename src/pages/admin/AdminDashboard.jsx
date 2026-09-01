@@ -223,13 +223,32 @@ const AdminDashboard = () => {
     }
   };
 
+  // 🛠️ Universal Image Formatter (Extracts Google Drive ID & handles direct CDNs)
   const formatImageUrl = (url) => {
-    if (!url) return '';
+    if (!url || typeof url !== 'string') return '';
     const cleanUrl = url.trim();
-    const driveMatch = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
-    if (driveMatch && driveMatch[1]) {
-      return `https://lh3.googleusercontent.com/d/${driveMatch[1]}`;
+
+    if (cleanUrl.includes('drive.google.com')) {
+      let fileId = '';
+
+      const matchFile = cleanUrl.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+      if (matchFile && matchFile[1]) fileId = matchFile[1];
+
+      if (!fileId) {
+        const matchDirectD = cleanUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+        if (matchDirectD && matchDirectD[1]) fileId = matchDirectD[1];
+      }
+
+      if (!fileId) {
+        const matchId = cleanUrl.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+        if (matchId && matchId[1]) fileId = matchId[1];
+      }
+
+      if (fileId) {
+        return `https://lh3.googleusercontent.com/d/${fileId}`;
+      }
     }
+
     return cleanUrl;
   };
 
@@ -305,7 +324,6 @@ const AdminDashboard = () => {
         {/* 👤 INTERACTIVE USER PROFILE PILL WITH UPWARD FLYOUT MENU */}
         <div className="relative mt-6 pt-3 border-t border-zinc-800/80" ref={userMenuRef}>
           
-          {/* Upward Flyout Menu Card */}
           {isUserMenuOpen && (
             <div className="absolute bottom-full left-0 mb-3 w-full bg-zinc-900/95 border border-zinc-800 rounded-2xl p-2.5 shadow-2xl backdrop-blur-2xl animate-fadeIn z-50">
               
@@ -320,7 +338,6 @@ const AdminDashboard = () => {
                 </div>
               </div>
 
-              {/* Action Links */}
               <div className="space-y-1">
                 <Link
                   to="/"
@@ -344,7 +361,6 @@ const AdminDashboard = () => {
             </div>
           )}
 
-          {/* Trigger Button */}
           <button
             onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
             className={`w-full flex items-center justify-between p-2.5 rounded-2xl border transition-all duration-200 cursor-pointer ${
@@ -441,7 +457,7 @@ const AdminDashboard = () => {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. /images/banner01.jpg or https://..."
+                      placeholder="e.g. /images/banner01.jpg or Google Drive Link"
                       value={imageUrl}
                       onChange={(e) => setImageUrl(e.target.value)}
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-xl px-4 py-2.5 text-xs text-white focus:outline-none focus:border-cyan-500 font-mono"
@@ -468,13 +484,30 @@ const AdminDashboard = () => {
                   <div className="space-y-3">
                     {banners.map((b) => (
                       <div key={b.id} className="bg-zinc-950/70 border border-zinc-800/80 rounded-2xl p-3 flex gap-4 items-center justify-between">
-                        <img src={b.image} alt="Banner" className="w-32 h-16 object-cover rounded-xl border border-zinc-800" />
+                        <img 
+                          src={formatImageUrl(b.image || b.imageUrl)} 
+                          alt="Banner" 
+                          referrerPolicy="no-referrer"
+                          className="w-32 h-16 object-cover rounded-xl border border-zinc-800 bg-zinc-900 shrink-0"
+                          onError={(e) => {
+                            const raw = (b.image || b.imageUrl || '').trim();
+                            const fileId = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1] || 
+                                           raw.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1] || 
+                                           raw.match(/[?&]id=([a-zA-Z0-9_-]+)/)?.[1];
+                            if (fileId && !e.target.dataset.tried) {
+                              e.target.dataset.tried = "true";
+                              e.target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w800`;
+                              return;
+                            }
+                            e.target.src = '/images/mvd-admission-banner.png';
+                          }}
+                        />
                         <div className="flex-1 min-w-0">
-                          <p className="text-[11px] text-zinc-400 truncate font-mono">{b.image}</p>
+                          <p className="text-[11px] text-zinc-400 truncate font-mono">{b.image || b.imageUrl}</p>
                         </div>
                         <button
                           onClick={() => handleBannerDelete(b.id)}
-                          className="p-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white rounded-xl text-xs transition cursor-pointer"
+                          className="p-2 bg-rose-500/10 text-rose-400 hover:bg-rose-500 hover:text-white rounded-xl text-xs transition cursor-pointer shrink-0"
                         >
                           🗑️
                         </button>
@@ -489,7 +522,6 @@ const AdminDashboard = () => {
           {/* 📜 CERTIFICATES TAB */}
           {activeTab === 'certificates' && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-              {/* Add Form */}
               <div className="lg:col-span-5 bg-zinc-950/70 border border-zinc-800/80 p-6 rounded-2xl">
                 <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full">
                   Student Verification
@@ -640,7 +672,18 @@ const AdminDashboard = () => {
               <img
                 src={previewCert.url}
                 alt={previewCert.id}
+                referrerPolicy="no-referrer"
                 className="w-full h-auto max-h-[60vh] object-contain rounded-xl"
+                onError={(e) => {
+                  const raw = (previewCert.url || '').trim();
+                  const fileId = raw.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1] || 
+                                 raw.match(/\/d\/([a-zA-Z0-9_-]+)/)?.[1] || 
+                                 raw.match(/[?&]id=([a-zA-Z0-9_-]+)/)?.[1];
+                  if (fileId && !e.target.dataset.tried) {
+                    e.target.dataset.tried = "true";
+                    e.target.src = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+                  }
+                }}
               />
             </div>
           </div>

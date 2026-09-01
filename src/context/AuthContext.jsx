@@ -5,7 +5,8 @@ import {
   createUserWithEmailAndPassword, 
   signOut,
   signInWithPopup,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendEmailVerification
 } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { auth, db, googleProvider } from '../config/firebase';
@@ -16,13 +17,16 @@ export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
-  const [userData, setUserData] = useState(null); // Firestore User Document
+  const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 1. Email + Password Signup
+  // 1. Email + Password Signup with Email Verification
   const signup = async (email, password, extraDetails = {}) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
+
+    // Send verification email
+    await sendEmailVerification(user);
 
     const userProfile = {
       uid: user.uid,
@@ -31,7 +35,7 @@ export const AuthProvider = ({ children }) => {
       phone: extraDetails.phone || '',
       board: extraDetails.board || 'UP Board',
       class: extraDetails.targetClass || 'Class 10th',
-      role: 'student', // Default role strictly student
+      role: 'student',
       purchasedMaterials: [],
       enrolledBatches: [],
       createdAt: new Date().toISOString(),
@@ -48,7 +52,7 @@ export const AuthProvider = ({ children }) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  // 3. Google Sign In
+  // 3. Google Sign In (Auto Verified by Google)
   const loginWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
@@ -78,12 +82,19 @@ export const AuthProvider = ({ children }) => {
     return result;
   };
 
-  // 4. Password Reset Email Handler
+  // 4. Resend Verification Email
+  const resendVerificationEmail = async () => {
+    if (auth.currentUser) {
+      await sendEmailVerification(auth.currentUser);
+    }
+  };
+
+  // 5. Password Reset Email Handler
   const resetPassword = (email) => {
     return sendPasswordResetEmail(auth, email);
   };
 
-  // 5. Logout
+  // 6. Logout
   const logout = async () => {
     setUserData(null);
     setCurrentUser(null);
@@ -120,16 +131,18 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     userData,
     isAdmin,
+    loading,
     signup,
     login,
     loginWithGoogle,
+    resendVerificationEmail,
     resetPassword,
     logout
   };
 
   return (
     <AuthContext.Provider value={value}>
-      {!loading && children}
+      {children}
     </AuthContext.Provider>
   );
 };

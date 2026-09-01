@@ -100,7 +100,7 @@ const CertificateModal = ({ isOpen, onClose }) => {
         {/* Header */}
         <div className="text-center mb-6">
           <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider bg-amber-500/10 border border-amber-500/20 px-3 py-1 rounded-full">
-            Official Verification Vault
+            Official Certificate Vault
           </span>
           <h3 className="text-xl sm:text-2xl font-black text-white mt-2">Verify Certificate 📜</h3>
           <p className="text-xs text-zinc-400 mt-1">Enter your unique Certificate ID to verify and view original credential.</p>

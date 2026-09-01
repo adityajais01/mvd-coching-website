@@ -31,11 +31,12 @@ const Navbar = () => {
 
             <div className="flex flex-col">
               <span className="md:text-2xl text-xl font-bold bg-gradient-to-r from-zinc-100 via-cyan-400 to-indigo-400 bg-clip-text text-transparent block">
-                MVD Coaching
+                माँ वैष्णो कोचिंग सेंटर
               </span>
-              <span className="text-[10px] tracking-wider text-zinc-400 font-medium uppercase">
-                Class 6th - 12th | UP & CBSE
+              <span className="text-[13px] tracking-wider text-zinc-400 font-medium uppercase">
+                & MVD Computer Institute
               </span>
+              
             </div>
           </Link>
 
@@ -144,7 +145,7 @@ const Navbar = () => {
                   }}
                   className="text-left text-amber-400 font-bold hover:underline py-1 flex items-center gap-1.5 cursor-pointer mt-1"
                 >
-                  📜 Verify Certificate
+                  📜 Certificates
                 </button>
               </div>
 

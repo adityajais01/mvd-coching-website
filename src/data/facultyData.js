@@ -14,7 +14,7 @@ export const facultyMembers = [
   },
   {
     id: 2,
-    name: "Aditya Jaiswal Sir",
+    name: "Aditya Sir",
     subject: "Maths, Physics & Computer Science",
     department: ["cbse", "computer"],
     experience: "4+ Years Exp.",
@@ -62,18 +62,18 @@ export const facultyMembers = [
     isStar: false,
     photo: "/images/sandeep01.jpg"
   },
-  // {
-  //   id: 6,
-  //   name: "S.K. Yadav Sir",
-  //   subject: "Physics (भौतिक विज्ञान)",
-  //   department: "upboard",
-  //   experience: "11+ Years Exp.",
-  //   education: "M.Sc Physics",
-  //   quote: "Numericals aur derivations par 100% command.",
-  //   badge: "Faculty",
-  //   isStar: false,
-  //   photo: ""
-  // },
+  {
+    id: 6,
+    name: "R.K. SIR (Ramkeshwar)",
+    subject: "Science",
+    department: "upboard",
+    experience: "13+ Years Exp.",
+    education: "B.A B.Ed (TET Qualified)",
+    quote: "Mastering NCERT & Previous Year Question trends",
+    badge: "Board Specialist",
+    isStar: true,
+    photo: ""
+  },
 
   // 🎓 CBSE Board Department Faculties
 //   {

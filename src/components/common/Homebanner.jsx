@@ -32,14 +32,14 @@ export const homeBanners = [
   },
   {
     id: 4,
-    image: "/images/mvd admission01.jpeg" // 👈 Fixed path (removed public/)
+    image: "/images/mvd-admission01.jpeg" // Spaces ko hyphen (-) se replace karein
   },
   {
     id: 5,
-    image: "/images/mvd banner01.jpeg"    // 👈 Fixed path
+    image: "/images/mvd-banner01.jpeg"
   },
-  // {
-  //   id: 6,
-  //   image: "/images/mvd banner03.jpeg"    // 👈 Fixed path
-  // }
+  {
+    id: 6,
+    image: "/images/mvd-banner03.jpeg"
+  }
 ];

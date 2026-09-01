@@ -19,16 +19,23 @@ import { getHomeBanners } from '../services/adminService';
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [banners, setBanners] = useState(defaultBanners);
+  const [banners, setBanners] = useState(defaultBanners || []);
+  const [bannersLoading, setBannersLoading] = useState(true);
 
   useEffect(() => {
     loadDynamicBanners();
   }, []);
 
   const loadDynamicBanners = async () => {
-    const dbBanners = await getHomeBanners();
-    if (dbBanners && dbBanners.length > 0) {
-      setBanners(dbBanners);
+    try {
+      const dbBanners = await getHomeBanners();
+      if (Array.isArray(dbBanners) && dbBanners.length > 0) {
+        setBanners(dbBanners);
+      }
+    } catch (error) {
+      console.warn("Dynamic banners load failed, using fallback:", error.message);
+    } finally {
+      setBannersLoading(false);
     }
   };
 
@@ -40,7 +47,17 @@ const Home = () => {
 
         {/* 2. MAIN CONTENT AREA */}
         <main className="max-w-7xl mx-auto px-4 sm:px-8 pt-6 pb-16">
-          <BannerSlider banners={banners} autoSlideInterval={4000} />
+          {/* Banner Slider with safety fallback */}
+          {banners && banners.length > 0 ? (
+            <BannerSlider banners={banners} autoSlideInterval={4000} />
+          ) : (
+            <div className="w-full h-56 sm:h-72 md:h-80 rounded-3xl bg-zinc-900 border border-zinc-800 animate-pulse flex items-center justify-center">
+              <span className="text-zinc-500 text-sm">
+                {bannersLoading ? "Loading updates..." : "Maa Vaishno Coaching Center"}
+              </span>
+            </div>
+          )}
+
           <DirectorMessage />
           {/* <StatsBar /> */}
           <FeaturedBatches onOpenEnquiry={() => setIsModalOpen(true)} />
