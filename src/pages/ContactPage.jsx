@@ -178,7 +178,7 @@ const ContactPage = () => {
                 <div className="grid grid-cols-3 gap-3 pt-1">
   {/* YouTube */}
   <a
-    href="https://youtube.com/@your_channel"
+    href="https://youtube.com/@maavaishnocoachingcentre7950?si=txsvo1ZKwCnJQK3J"
     target="_blank"
     rel="noopener noreferrer"
     className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800 hover:border-red-500/50 hover:bg-red-500/10 transition-all duration-300 group shadow-md"
@@ -194,7 +194,7 @@ const ContactPage = () => {
 
   {/* Instagram */}
   <a
-    href="https://instagram.com/your_instagram"
+    href="https://www.instagram.com/maavaishnocoaching?igsi=MW84MHA0cXFjYWx2YQ=="
     target="_blank"
     rel="noopener noreferrer"
     className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800 hover:border-pink-500/50 hover:bg-pink-500/10 transition-all duration-300 group shadow-md"
@@ -210,7 +210,7 @@ const ContactPage = () => {
 
   {/* Facebook */}
   <a
-    href="https://facebook.com/your_facebook"
+    href="https://www.facebook.com/share/196XKe5VE8/"
     target="_blank"
     rel="noopener noreferrer"
     className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl bg-zinc-950/80 border border-zinc-800 hover:border-blue-500/50 hover:bg-blue-500/10 transition-all duration-300 group shadow-md"

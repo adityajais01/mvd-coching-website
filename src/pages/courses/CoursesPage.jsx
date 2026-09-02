@@ -38,7 +38,23 @@ const CoursesPage = () => {
     return true;
   });
 
+  // Offline Batches ke liye Demo Booking Handler
+  const handleOfflineDemoBooking = (batch) => {
+    const coachingWhatsAppNumber = "919999999999"; // Apna coaching WhatsApp number yahan dalein
+    const studentName = userData?.fullName || "Student";
+    const message = encodeURIComponent(
+      `Hello Maa Vaishno Coaching, mera naam ${studentName} hai. Mujhe offline batch "${batch.title}" ke liye FREE Demo Class book karni hai.`
+    );
+    window.open(`https://wa.me/${coachingWhatsAppNumber}?text=${message}`, '_blank');
+  };
+
   const handleEnrollClick = (batch) => {
+    // 0. OFFLINE BATCH CHECK: No payment, trigger Free Demo Booking
+    if (batch.mode === 'Offline' || batch.mode === 'offline') {
+      handleOfflineDemoBooking(batch);
+      return;
+    }
+
     // 1. UNAUTHENTICATED CHECK: Redirect to Login
     if (!currentUser) {
       alert("Please login or sign up to purchase or enroll in this batch.");

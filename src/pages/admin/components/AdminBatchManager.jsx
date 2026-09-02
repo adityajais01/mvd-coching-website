@@ -75,6 +75,16 @@ const AdminBatchManager = () => {
     loadBatches();
   };
 
+  // Mode badalne par auto-set billingType
+  const handleModeChange = (newMode) => {
+    setMode(newMode);
+    if (newMode === 'Offline') {
+      setBillingType('Monthly at Center');
+    } else {
+      setBillingType('One-Time Full Course');
+    }
+  };
+
   // 🚀 PUBLISH BATCH SUBMIT HANDLER
   const handleCreateBatch = async (e) => {
     e.preventDefault();
@@ -109,7 +119,7 @@ const AdminBatchManager = () => {
       if (res && (res.success || res.id)) {
         alert("🎉 Batch published successfully!");
         setTitle('');
-        setPrice('0');
+        setPrice('500');
         setOriginalPrice('');
         setIsPopular(false);
         loadBatches();
@@ -289,22 +299,28 @@ const AdminBatchManager = () => {
           </div>
 
           <div>
-            <label className="block mb-1 text-xs font-bold text-zinc-400">Mode</label>
+            <label className="block mb-1 text-xs font-bold text-zinc-400">Mode *</label>
             <select
               value={mode}
-              onChange={(e) => setMode(e.target.value)}
-              className="w-full px-3.5 py-2 text-xs text-white bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:border-cyan-500"
+              onChange={(e) => handleModeChange(e.target.value)}
+              className={`w-full px-3.5 py-2 text-xs font-bold rounded-xl border focus:outline-none ${
+                mode === 'Offline'
+                  ? 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                  : 'bg-zinc-950 text-white border-zinc-800 focus:border-cyan-500'
+              }`}
             >
-              <option value="Online">Online LIVE Batch</option>
-              <option value="Offline">Offline Center Batch</option>
+              <option value="Online">💻 Online LIVE Batch</option>
+              <option value="Offline">🏫 Offline Center Batch (Demo / Monthly)</option>
             </select>
           </div>
 
           <div>
-            <label className="block mb-1 text-xs font-bold text-zinc-400">Price in ₹ (0 for FREE)</label>
+            <label className="block mb-1 text-xs font-bold text-zinc-400">
+              {mode === 'Offline' ? 'Monthly Fee in ₹ (Center)' : 'Course Price in ₹ (0 for FREE)'}
+            </label>
             <input 
               type="number"
-              placeholder="0 for Free"
+              placeholder={mode === 'Offline' ? "e.g. 500 / month" : "0 for Free"}
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               className="w-full px-3.5 py-2 text-xs text-white bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:border-cyan-500"
@@ -323,10 +339,10 @@ const AdminBatchManager = () => {
           </div>
 
           <div>
-            <label className="block mb-1 text-xs font-bold text-zinc-400">Billing Type</label>
+            <label className="block mb-1 text-xs font-bold text-zinc-400">Billing Type / Subtitle</label>
             <input 
               type="text"
-              placeholder="e.g. One-Time Full Course OR Per Month Fee"
+              placeholder="e.g. Monthly at Center OR Full Access"
               value={billingType}
               onChange={(e) => setBillingType(e.target.value)}
               className="w-full px-3.5 py-2 text-xs text-white bg-zinc-950 border border-zinc-800 rounded-xl focus:outline-none focus:border-cyan-500"
@@ -354,7 +370,6 @@ const AdminBatchManager = () => {
               Show in "Popular Batches" on Home Page 🔥
             </label>
 
-            {/* Explicit type="submit" button */}
             <button
               type="submit"
               disabled={submitting}
@@ -378,59 +393,66 @@ const AdminBatchManager = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {batches.map((b) => (
-              <div key={b.id} className="flex flex-col justify-between p-5 shadow-lg bg-zinc-900 border border-zinc-800 rounded-2xl">
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-                      {b.mode}
-                    </span>
-                    <span className="text-[10px] font-extrabold px-2 py-0.5 rounded border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                      {b.price}
-                    </span>
+            {batches.map((b) => {
+              const isOffline = (b.mode || '').toLowerCase() === 'offline';
+              return (
+                <div key={b.id} className="flex flex-col justify-between p-5 shadow-lg bg-zinc-900 border border-zinc-800 rounded-2xl">
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded border ${
+                        isOffline 
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' 
+                          : 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20'
+                      }`}>
+                        {isOffline ? '🏫 OFFLINE' : '💻 ONLINE'}
+                      </span>
+                      <span className="text-[10px] font-extrabold px-2 py-0.5 rounded border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+                        {b.price} {isOffline ? '/mo' : ''}
+                      </span>
+                    </div>
+
+                    <h3 className="mb-1 text-sm font-bold text-white">{b.title}</h3>
+                    <p className="text-xs text-zinc-400">{b.targetClass}</p>
+
+                    <div className="flex items-center gap-3 my-3 text-[11px] text-zinc-400">
+                      <span>🎥 {(b.lectures || []).length} Lectures</span>
+                      <span>•</span>
+                      <span>📑 {(b.dpps || []).length} DPPs/Notes</span>
+                    </div>
                   </div>
 
-                  <h3 className="mb-1 text-sm font-bold text-white">{b.title}</h3>
-                  <p className="text-xs text-zinc-400">{b.targetClass}</p>
+                  <div className="pt-3 space-y-2 border-t border-zinc-800/80">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedBatch(b)}
+                      className="w-full py-2 text-xs font-bold transition bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-xl hover:bg-cyan-500/20 cursor-pointer"
+                    >
+                      📺 Upload Lectures & DPPs ➔
+                    </button>
 
-                  <div className="flex items-center gap-3 my-3 text-[11px] text-zinc-400">
-                    <span>🎥 {(b.lectures || []).length} Lectures</span>
-                    <span>•</span>
-                    <span>📑 {(b.dpps || []).length} DPPs/Notes</span>
+                    <button
+                      type="button"
+                      onClick={() => handleTogglePopular(b.id, b.isPopular)}
+                      className={`w-full py-1.5 rounded-xl text-xs font-bold transition border cursor-pointer ${
+                        b.isPopular 
+                          ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20' 
+                          : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:text-white'
+                      }`}
+                    >
+                      {b.isPopular ? '🔥 Featured on Home Page' : '➕ Feature on Home Page'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleDelete(b.id, b.title)}
+                      className="w-full py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-bold text-xs hover:bg-red-500/20 transition cursor-pointer"
+                    >
+                      Delete Batch 🗑️
+                    </button>
                   </div>
                 </div>
-
-                <div className="pt-3 space-y-2 border-t border-zinc-800/80">
-                  <button
-                    type="button"
-                    onClick={() => setSelectedBatch(b)}
-                    className="w-full py-2 text-xs font-bold transition bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 rounded-xl hover:bg-cyan-500/20 cursor-pointer"
-                  >
-                    📺 Upload Lectures & DPPs ➔
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleTogglePopular(b.id, b.isPopular)}
-                    className={`w-full py-1.5 rounded-xl text-xs font-bold transition border cursor-pointer ${
-                      b.isPopular 
-                        ? 'bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20' 
-                        : 'bg-zinc-800 text-zinc-400 border-zinc-700 hover:text-white'
-                    }`}
-                  >
-                    {b.isPopular ? '🔥 Featured on Home Page' : '➕ Feature on Home Page'}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleDelete(b.id, b.title)}
-                    className="w-full py-1.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 font-bold text-xs hover:bg-red-500/20 transition cursor-pointer"
-                  >
-                    Delete Batch 🗑️
-                  </button>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
@@ -480,7 +502,7 @@ const AdminBatchManager = () => {
                 </button>
               </div>
 
-              {/* TAB 1: LECTURES FORM & LIST */}
+              {/* TAB 1: LECTURES */}
               {modalTab === 'lectures' && (
                 <div className="space-y-4">
                   <form onSubmit={handleAddLecture} className="p-4 border bg-zinc-950/60 rounded-2xl border-zinc-800/80 space-y-3">
@@ -559,7 +581,7 @@ const AdminBatchManager = () => {
                 </div>
               )}
 
-              {/* TAB 2: DPPS & PDFS FORM & LIST */}
+              {/* TAB 2: DPPS & PDFS */}
               {modalTab === 'dpps' && (
                 <div className="space-y-4">
                   <form onSubmit={handleAddDPP} className="p-4 border bg-zinc-950/60 rounded-2xl border-zinc-800/80 space-y-3">

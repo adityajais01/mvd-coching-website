@@ -1,7 +1,7 @@
 import React from 'react';
 
 const BatchCard = ({ batch, isEnrolled, onEnroll }) => {
-  const isOnline = batch.mode === 'Online';
+  const isOnline = batch.mode === 'Online' || batch.mode === 'online';
 
   return (
     <div className={`bg-zinc-900 border ${
@@ -51,11 +51,21 @@ const BatchCard = ({ batch, isEnrolled, onEnroll }) => {
             <span className="text-xs text-zinc-500 line-through">{batch.originalPrice}</span>
           )}
           <span className="text-[10px] text-zinc-400 block font-semibold">
-            ({batch.billingType || 'Full Access'})
+            {isOnline 
+              ? `(${batch.billingType || 'Full Access'})` 
+              : '/ month (Pay at Center)'}
           </span>
         </div>
 
-        {isEnrolled ? (
+        {/* Action Button */}
+        {!isOnline ? (
+          <button 
+            onClick={onEnroll}
+            className="w-full py-2.5 rounded-xl font-extrabold text-xs transition cursor-pointer bg-amber-500 text-zinc-950 hover:bg-amber-400 shadow-lg"
+          >
+            Book Free Demo Class 📍
+          </button>
+        ) : isEnrolled ? (
           <button 
             onClick={onEnroll}
             className="w-full py-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-extrabold text-xs cursor-pointer hover:bg-emerald-500/20 transition"
@@ -65,11 +75,7 @@ const BatchCard = ({ batch, isEnrolled, onEnroll }) => {
         ) : (
           <button 
             onClick={onEnroll}
-            className={`w-full py-2.5 rounded-xl font-extrabold text-xs transition cursor-pointer ${
-              isOnline 
-                ? 'bg-cyan-500 text-zinc-950 hover:bg-cyan-400 shadow-lg' 
-                : 'bg-amber-500 text-zinc-950 hover:bg-amber-400 shadow-lg'
-            }`}
+            className="w-full py-2.5 rounded-xl font-extrabold text-xs transition cursor-pointer bg-cyan-500 text-zinc-950 hover:bg-cyan-400 shadow-lg"
           >
             {batch.price === 0 || batch.price === "0" || batch.price === "₹0" 
               ? 'Enroll Now (Free ₹0) 🚀' 
