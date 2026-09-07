@@ -1,42 +1,64 @@
 export const toppersList = [
+  // Board Exam Student
   {
     id: 1,
-    name: "Aman Sharma",
-    classTarget: "Class 10th Board",
-    score: "96.8%",
+    name: "Shivsagar",
+    classTarget: "Class 12th Board",
+    score: "79.88%",
     board: "UP Board",
-    badge: "District Rank 3",
-    year: "2025"
+    badge: "Good Performer",
+    year: "2025-26",
+    image: "/images/toppers/shivsagar.jpeg",
+    type: "academic" // optional flag
   },
+  // Computer Certification Student (e.g., ADCA)
   {
     id: 2,
-    name: "Priya Singh",
-    classTarget: "Class 12th Science",
-    score: "95.4%",
-    board: "CBSE Board",
-    badge: "School Topper",
-    year: "2025"
+    name: "Shikha Kumari",
+    classTarget: "ADCA (1 Year)",
+    score: "Grade A",
+    board: "Maa Vaishono Coaching. Certified", // ya "Maa Vaishno Institute"
+    badge: "Institute Rank 1",
+    year: "2026",
+    image: "/images/toppers/sikha.jpeg",
+    type: "computer"
   },
+  // Tally / GST Student
   {
     id: 3,
-    name: "Rohan Verma",
-    classTarget: "Class 10th Board",
-    score: "94.2%",
+    name: "Sanjeev Vishwakarma",
+    classTarget: "MS Office, Tally + GST (ADFA)",
+    score: "Grade B+",
+    board: "Certified",
+    badge: "Institute Rank 2",
+    year: "2026",
+    image: "/images/toppers/sanjeev.jpeg",
+    type: "computer"
+  },
+  // Board Exam Student
+  {
+    id: 4,
+    name: "Arpita Singh",
+    classTarget: "Class 10th ",
+    score: "84%",
     board: "UP Board",
-    badge: "Maths 100/100",
-    year: "2025"
+    badge: "Institute Topper",
+    year: "2025-26",
+    image: "/images/toppers/arpita.jpeg",
+    type: "academic"
   },
   {
     id: 4,
-    name: "Anjali Gupta",
-    classTarget: "Class 12th PCM",
-    score: "93.8%",
-    board: "CBSE Board",
-    badge: "Physics 98/100",
-    year: "2025"
+    name: "Anjali Singh",
+    classTarget: "Class 10th ",
+    score: "79.5%",
+    board: "UP Board",
+    badge: "Good Performer",
+    year: "2025-26",
+    image: "/images/toppers/anjali.jpeg",
+    type: "academic"
   }
 ];
-
 export const studentReviews = [
   {
     id: 1,

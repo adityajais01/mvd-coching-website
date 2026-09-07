@@ -8,6 +8,7 @@ import WhyChooseUs from '../components/home/WhyChooseUs';
 import DirectorMessage from '../components/home/DirectorMessage';
 import StarFaculty from '../components/home/StarFaculty';
 import ToppersCorner from '../components/home/ToppersCorner';
+import EventSlider from '../components/home/EventSlider';
 import FAQSection from '../components/home/FAQSection';
 import AdmissionCTA from '../components/home/AdmissionCTA';
 import Footer from '../components/common/Footer';
@@ -63,6 +64,7 @@ const Home = () => {
           <FeaturedBatches onOpenEnquiry={() => setIsModalOpen(true)} />
           <StarFaculty />
           <ToppersCorner />
+          <EventSlider />
           <StudyMaterialSection />
           <WhyChooseUs />
           <FAQSection />

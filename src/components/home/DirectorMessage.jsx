@@ -160,8 +160,8 @@ const DirectorMessage = () => {
               </div>
 
               <div className="bg-zinc-950/80 p-3.5 rounded-2xl border border-zinc-800/80 text-center sm:text-left">
-                <span className="block text-xl font-black text-purple-400">ISO</span>
-                <span className="text-[11px] text-zinc-400 font-medium">Certified Training</span>
+                <span className="block text-xl font-black text-purple-400">100%</span>
+                <span className="text-[11px] text-zinc-400 font-medium">Certified Courses</span>
               </div>
             </div>
 

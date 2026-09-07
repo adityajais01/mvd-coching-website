@@ -40,7 +40,7 @@ const CoursesPage = () => {
 
   // Offline Batches ke liye Demo Booking Handler
   const handleOfflineDemoBooking = (batch) => {
-    const coachingWhatsAppNumber = "919999999999"; // Apna coaching WhatsApp number yahan dalein
+    const coachingWhatsAppNumber = "919235763122"; 
     const studentName = userData?.fullName || "Student";
     const message = encodeURIComponent(
       `Hello Maa Vaishno Coaching, mera naam ${studentName} hai. Mujhe offline batch "${batch.title}" ke liye FREE Demo Class book karni hai.`

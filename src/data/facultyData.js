@@ -71,7 +71,7 @@ export const facultyMembers = [
     education: "B.A B.Ed (TET Qualified)",
     quote: "Mastering NCERT & Previous Year Question trends",
     badge: "Board Specialist",
-    isStar: true,
+    isStar: false,
     photo: ""
   },
 
