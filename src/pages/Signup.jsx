@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/common/Button';
-import { db } from '../config/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { sendEmailVerification } from 'firebase/auth';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -18,6 +17,7 @@ const Signup = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [verificationNotice, setVerificationNotice] = useState('');
   const [loading, setLoading] = useState(false);
 
   const { signup, loginWithGoogle } = useAuth();
@@ -30,6 +30,7 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setVerificationNotice('');
 
     // 1. Sanitization
     const sanitizedFullName = formData.fullName.trim();
@@ -72,35 +73,35 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      // 3. Duplicate Phone Check
-      const phoneQuery = query(
-        collection(db, 'users'),
-        where('phone', '==', sanitizedPhone)
-      );
-      const phoneSnapshot = await getDocs(phoneQuery);
-
-      if (!phoneSnapshot.empty) {
-        setLoading(false);
-        return setError('This mobile number is already registered with another account.');
-      }
-
-      // 4. Create Account
-      await signup(sanitizedEmail, password, {
+      // 3. Create Account & Save Profile via AuthContext signup helper
+      const userCredential = await signup(sanitizedEmail, password, {
         fullName: sanitizedFullName,
         phone: sanitizedPhone,
         board: formData.board,
         targetClass: formData.targetClass
       });
 
+      // 4. Send Email Verification (Preserved with alert & notice)
+      if (userCredential?.user) {
+        try {
+          await sendEmailVerification(userCredential.user);
+          alert('🎉 Account created successfully! A verification email has been sent to your inbox. Please verify your email.');
+        } catch (verifyErr) {
+          console.warn("Verification email notice:", verifyErr);
+        }
+      }
+
       navigate('/dashboard');
     } catch (err) {
       console.error("Signup Error:", err);
-      if (err.message.includes('email-already-in-use')) {
+      if (err.code === 'auth/email-already-in-use' || err.message.includes('email-already-in-use')) {
         setError('This email address is already registered. Please log in.');
-      } else if (err.message.includes('invalid-email')) {
+      } else if (err.code === 'auth/invalid-email' || err.message.includes('invalid-email')) {
         setError('Invalid email address format.');
+      } else if (err.code === 'auth/weak-password') {
+        setError('Password is too weak. Please use a stronger password.');
       } else {
-        setError('Failed to create an account. Please try again.');
+        setError('Failed to create an account: ' + (err.message || 'Please try again.'));
       }
     } finally {
       setLoading(false);
@@ -138,6 +139,12 @@ const Signup = () => {
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-medium">
             {error}
+          </div>
+        )}
+
+        {verificationNotice && (
+          <div className="mb-4 p-3 rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs text-center font-medium">
+            {verificationNotice}
           </div>
         )}
 

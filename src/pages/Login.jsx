@@ -3,13 +3,16 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/common/Button';
 import { db } from '../config/firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { sendEmailVerification } from 'firebase/auth';
 
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [unverifiedUser, setUnverifiedUser] = useState(null);
+  const [resendStatus, setResendStatus] = useState('');
 
   // Forgot Password Modal State
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
@@ -21,14 +24,29 @@ const Login = () => {
   const { login, loginWithGoogle, resetPassword } = useAuth();
   const navigate = useNavigate();
 
-  // Redirection fix with .trim() and .toLowerCase()
+  // Role check & Google profile auto-sync
   const redirectBasedOnRole = async (user) => {
     try {
       const userDocRef = doc(db, 'users', user.uid);
-      const userDocSnap = await getDoc(userDocRef);
+      let userDocSnap = await getDoc(userDocRef);
+
+      // Agar Google user ka Firestore document nahi bana hai toh create karein
+      if (!userDocSnap.exists()) {
+        await setDoc(userDocRef, {
+          uid: user.uid,
+          fullName: user.displayName || 'Student',
+          email: user.email || '',
+          phone: user.phoneNumber || '',
+          role: 'student',
+          board: 'UP Board',
+          targetClass: 'Class 10th',
+          createdAt: serverTimestamp()
+        }, { merge: true });
+        userDocSnap = await getDoc(userDocRef);
+      }
 
       if (userDocSnap.exists()) {
-        const rawRole = userDocSnap.data().role || '';
+        const rawRole = userDocSnap.data()?.role || '';
         const cleanRole = rawRole.trim().toLowerCase();
 
         if (cleanRole === 'admin') {
@@ -37,7 +55,6 @@ const Login = () => {
         }
       }
       
-      // Fallback to Student Dashboard
       navigate('/dashboard');
     } catch (err) {
       console.error('Role fetch error:', err);
@@ -48,21 +65,49 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setUnverifiedUser(null);
+    setResendStatus('');
     setLoading(true);
 
     try {
-      const userCredential = await login(email, password);
-      await redirectBasedOnRole(userCredential.user);
+      const userCredential = await login(email.trim().toLowerCase(), password);
+      const user = userCredential.user;
+
+      // Agar email verify nahi hai toh notice aur resend button offer karein
+      if (user && !user.emailVerified) {
+        setUnverifiedUser(user);
+      }
+
+      await redirectBasedOnRole(user);
     } catch (err) {
-      setError(
-        err.message.includes('user-not-found') ||
-        err.message.includes('wrong-password') ||
-        err.message.includes('invalid-credential')
-          ? 'Invalid Email or Password.'
-          : 'Failed to log in. Please try again.'
-      );
+      console.error("Login error:", err);
+      const msg = err.message || '';
+      if (
+        msg.includes('user-not-found') ||
+        msg.includes('wrong-password') ||
+        msg.includes('invalid-credential') ||
+        err.code === 'auth/invalid-credential'
+      ) {
+        setError('Invalid Email or Password.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setError('Too many failed attempts. Please try again later or reset password.');
+      } else {
+        setError('Failed to log in. Please try again.');
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!unverifiedUser) return;
+    try {
+      setResendStatus('Sending...');
+      await sendEmailVerification(unverifiedUser);
+      setResendStatus('Verification link sent! Check your inbox/spam folder.');
+    } catch (err) {
+      console.error(err);
+      setResendStatus('Could not send email right now. Please try again shortly.');
     }
   };
 
@@ -73,6 +118,7 @@ const Login = () => {
       const userCredential = await loginWithGoogle();
       await redirectBasedOnRole(userCredential.user);
     } catch (err) {
+      console.error("Google sign in error:", err);
       setError('Google Sign-In failed. Please try again.');
     } finally {
       setLoading(false);
@@ -86,10 +132,10 @@ const Login = () => {
     setResetLoading(true);
 
     try {
-      await resetPassword(resetEmail);
+      await resetPassword(resetEmail.trim().toLowerCase());
       setResetMessage('Password reset link has been sent to your email! Please check your inbox.');
     } catch (err) {
-      if (err.message.includes('user-not-found')) {
+      if (err.message.includes('user-not-found') || err.code === 'auth/user-not-found') {
         setResetError('No account registered with this email address.');
       } else {
         setResetError('Failed to send reset email. Please verify your email ID.');
@@ -118,6 +164,20 @@ const Login = () => {
           {error && (
             <div className="mb-4 p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs text-center font-medium">
               {error}
+            </div>
+          )}
+
+          {unverifiedUser && (
+            <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs text-center font-medium space-y-2">
+              <p>Your email is not verified yet.</p>
+              <button
+                type="button"
+                onClick={handleResendVerification}
+                className="text-cyan-400 underline hover:text-cyan-300 font-bold cursor-pointer"
+              >
+                Click here to resend verification email
+              </button>
+              {resendStatus && <p className="text-[11px] text-zinc-300 mt-1">{resendStatus}</p>}
             </div>
           )}
 
@@ -163,7 +223,7 @@ const Login = () => {
             <Button 
               variant="primary" 
               type="submit" 
-              className="w-full py-3 mt-2 text-sm"
+              className="w-full py-3 mt-2 text-sm cursor-pointer"
               disabled={loading}
             >
               {loading ? 'Logging in...' : 'Sign In 🚀'}
@@ -179,7 +239,7 @@ const Login = () => {
           <button
             onClick={handleGoogleSignIn}
             disabled={loading}
-            className="w-full bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-bold py-2.5 rounded-xl text-xs sm:text-sm transition duration-300 flex items-center justify-center gap-2 active:scale-95 cursor-pointer"
+            className="w-full bg-zinc-950 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 font-bold py-2.5 rounded-xl text-xs sm:text-sm transition duration-300 flex items-center justify-center gap-2 active:scale-95 cursor-pointer disabled:opacity-50"
           >
             <span>🌐</span> Continue with Google
           </button>
@@ -226,7 +286,7 @@ const Login = () => {
             )}
 
             <form onSubmit={handlePasswordReset} className="space-y-3">
-              <input
+              <input 
                 type="email"
                 required
                 placeholder="Registered Email ID"
@@ -235,7 +295,7 @@ const Login = () => {
                 className="w-full bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500 transition"
               />
 
-              <button
+              <button 
                 type="submit"
                 disabled={resetLoading}
                 className="w-full bg-cyan-500 hover:bg-cyan-400 disabled:opacity-50 text-zinc-950 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer"

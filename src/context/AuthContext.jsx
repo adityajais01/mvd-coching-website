@@ -25,8 +25,12 @@ export const AuthProvider = ({ children }) => {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Send verification email
-    await sendEmailVerification(user);
+    // Send verification email safely
+    try {
+      await sendEmailVerification(user);
+    } catch (err) {
+      console.warn("Verification email notice:", err);
+    }
 
     const userProfile = {
       uid: user.uid,
@@ -52,34 +56,43 @@ export const AuthProvider = ({ children }) => {
     return signInWithEmailAndPassword(auth, email, password);
   };
 
-  // 3. Google Sign In (Auto Verified by Google)
+  // 3. Google Sign In (Handled with Account Picker & Error Fallback)
   const loginWithGoogle = async () => {
-    const result = await signInWithPopup(auth, googleProvider);
-    const user = result.user;
+    try {
+      googleProvider.setCustomParameters({ prompt: 'select_account' });
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
 
-    const userRef = doc(db, 'users', user.uid);
-    const docSnap = await getDoc(userRef);
+      const userRef = doc(db, 'users', user.uid);
+      const docSnap = await getDoc(userRef);
 
-    if (!docSnap.exists()) {
-      const newProfile = {
-        uid: user.uid,
-        fullName: user.displayName || user.email.split('@')[0],
-        email: user.email,
-        phone: user.phoneNumber || '',
-        board: 'UP Board',
-        class: 'Class 10th',
-        role: 'student',
-        purchasedMaterials: [],
-        enrolledBatches: [],
-        createdAt: new Date().toISOString(),
-        isActive: true
-      };
-      await setDoc(userRef, newProfile);
-      setUserData(newProfile);
-    } else {
-      setUserData(docSnap.data());
+      if (!docSnap.exists()) {
+        const newProfile = {
+          uid: user.uid,
+          fullName: user.displayName || user.email.split('@')[0],
+          email: user.email,
+          phone: user.phoneNumber || '',
+          board: 'UP Board',
+          class: 'Class 10th',
+          role: 'student',
+          purchasedMaterials: [],
+          enrolledBatches: [],
+          createdAt: new Date().toISOString(),
+          isActive: true
+        };
+        await setDoc(userRef, newProfile);
+        setUserData(newProfile);
+      } else {
+        setUserData(docSnap.data());
+      }
+      return result;
+    } catch (error) {
+      if (error.code === 'auth/popup-closed-by-user') {
+        console.warn("User or browser closed the Google Sign-in popup.");
+        return null;
+      }
+      throw error;
     }
-    return result;
   };
 
   // 4. Resend Verification Email
