@@ -29,6 +29,7 @@ const AdminBatchManager = () => {
   const [billingType, setBillingType] = useState('One-Time Full Course');
   const [featuresInput, setFeaturesInput] = useState("Daily LIVE Classes & Recorded Backup\nChapterwise PDF Notes & DPPs\nWeekly Online Test Series");
   const [isPopular, setIsPopular] = useState(false);
+  const [showPrice, setShowPrice] = useState(true); // Toggle for showing/hiding price
   const [submitting, setSubmitting] = useState(false);
 
   // Content Modal State
@@ -112,7 +113,8 @@ const AdminBatchManager = () => {
         originalPrice: originalPrice ? `₹${originalPrice}` : '',
         billingType,
         features: featuresArray,
-        isPopular
+        isPopular,
+        showPrice: Boolean(showPrice) // Saved to Firestore
       };
 
       const res = await createBatch(newBatch);
@@ -122,6 +124,7 @@ const AdminBatchManager = () => {
         setPrice('500');
         setOriginalPrice('');
         setIsPopular(false);
+        setShowPrice(true);
         loadBatches();
       } else {
         alert("Failed to create batch: " + (res?.error || "Unknown Error"));
@@ -359,16 +362,30 @@ const AdminBatchManager = () => {
             />
           </div>
 
-          <div className="flex items-center justify-between pt-2 md:col-span-3">
-            <label className="flex items-center gap-2 text-xs font-bold text-amber-400 cursor-pointer">
-              <input 
-                type="checkbox"
-                checked={isPopular}
-                onChange={(e) => setIsPopular(e.target.checked)}
-                className="w-4 h-4 text-cyan-500 border-zinc-700 rounded bg-zinc-950"
-              />
-              Show in "Popular Batches" on Home Page 🔥
-            </label>
+          {/* TOGGLE CHECKBOXES ROW */}
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-2 md:col-span-3 border-t border-zinc-800">
+            <div className="flex flex-wrap items-center gap-6">
+              <label className="flex items-center gap-2 text-xs font-bold text-amber-400 cursor-pointer">
+                <input 
+                  type="checkbox"
+                  checked={isPopular}
+                  onChange={(e) => setIsPopular(e.target.checked)}
+                  className="w-4 h-4 text-cyan-500 border-zinc-700 rounded bg-zinc-950 cursor-pointer"
+                />
+                Show in "Popular Batches" on Home Page 🔥
+              </label>
+
+              {/* Show/Hide Price Toggle */}
+              <label className="flex items-center gap-2 text-xs font-bold text-cyan-400 cursor-pointer">
+                <input 
+                  type="checkbox"
+                  checked={showPrice}
+                  onChange={(e) => setShowPrice(e.target.checked)}
+                  className="w-4 h-4 text-cyan-500 border-zinc-700 rounded bg-zinc-950 cursor-pointer"
+                />
+                Show Price on Website 💰
+              </label>
+            </div>
 
             <button
               type="submit"
@@ -395,6 +412,8 @@ const AdminBatchManager = () => {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
             {batches.map((b) => {
               const isOffline = (b.mode || '').toLowerCase() === 'offline';
+              const isPriceVisible = b.showPrice !== false;
+
               return (
                 <div key={b.id} className="flex flex-col justify-between p-5 shadow-lg bg-zinc-900 border border-zinc-800 rounded-2xl">
                   <div>
@@ -406,8 +425,9 @@ const AdminBatchManager = () => {
                       }`}>
                         {isOffline ? '🏫 OFFLINE' : '💻 ONLINE'}
                       </span>
+
                       <span className="text-[10px] font-extrabold px-2 py-0.5 rounded border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-                        {b.price} {isOffline ? '/mo' : ''}
+                        {isPriceVisible ? `${b.price} ${isOffline ? '/mo' : ''}` : 'Price Hidden'}
                       </span>
                     </div>
 

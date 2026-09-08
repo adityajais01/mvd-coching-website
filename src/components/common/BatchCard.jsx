@@ -2,6 +2,8 @@ import React from 'react';
 
 const BatchCard = ({ batch, isEnrolled, onEnroll }) => {
   const isOnline = batch.mode === 'Online' || batch.mode === 'online';
+  // Check if price should be displayed (default is true if not set)
+  const isPriceVisible = batch.showPrice !== false;
 
   return (
     <div className={`bg-zinc-900 border ${
@@ -43,21 +45,34 @@ const BatchCard = ({ batch, isEnrolled, onEnroll }) => {
 
       {/* Pricing & CTA Button */}
       <div>
-        <div className="flex items-baseline gap-2 mb-4">
-          <span className="text-2xl font-black text-white">
-            {typeof batch.price === 'number' ? `₹${batch.price}` : batch.price}
-          </span>
-          {batch.originalPrice && (
-            <span className="text-xs text-zinc-500 line-through">{batch.originalPrice}</span>
+        <div className="flex items-baseline gap-2 mb-4 min-h-[32px]">
+          {isPriceVisible ? (
+            <>
+              <span className="text-2xl font-black text-white">
+                {typeof batch.price === 'number' ? `₹${batch.price}` : batch.price}
+              </span>
+              {batch.originalPrice && (
+                <span className="text-xs text-zinc-500 line-through">{batch.originalPrice}</span>
+              )}
+              <span className="text-[10px] text-zinc-400 block font-semibold">
+                {isOnline 
+                  ? `(${batch.billingType || 'Full Access'})` 
+                  : '/ month (Pay at Center)'}
+              </span>
+            </>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-amber-400/90 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-lg">
+                📍 Offline Classroom Batch
+              </span>
+              <span className="text-[10px] text-zinc-500">
+                (Fee at Center)
+              </span>
+            </div>
           )}
-          <span className="text-[10px] text-zinc-400 block font-semibold">
-            {isOnline 
-              ? `(${batch.billingType || 'Full Access'})` 
-              : '/ month (Pay at Center)'}
-          </span>
         </div>
 
-        {/* Action Button */}
+        {/* Action Button: Book Free Demo remains active regardless of price visibility */}
         {!isOnline ? (
           <button 
             onClick={onEnroll}
