@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import Navbar from '../components/common/Navbar';
 import BannerSlider from '../components/common/BannerSlider';
-// import StatsBar from '../components/common/StatsBar';
-import FeaturedBatches from '../components/home/PopularBatchesSection';
-import StudyMaterialSection from '../components/home/StudyMaterialSection';
-import WhyChooseUs from '../components/home/WhyChooseUs';
 import DirectorMessage from '../components/home/DirectorMessage';
-import StarFaculty from '../components/home/StarFaculty';
-import ToppersCorner from '../components/home/ToppersCorner';
-import EventSlider from '../components/home/EventSlider';
-import FAQSection from '../components/home/FAQSection';
-import AdmissionCTA from '../components/home/AdmissionCTA';
+import FeaturedBatches from '../components/home/PopularBatchesSection';
 import Footer from '../components/common/Footer';
 import FloatingContact from '../components/common/FloatingContact';
-import EnquiryModal from '../components/common/EnquiryModal';
 
 import { homeBanners as defaultBanners } from '../components/common/Homebanner';
 import { getHomeBanners } from '../services/adminService';
+
+// Below-the-fold & Secondary Components (Code-split for fast First Contentful Paint)
+const StarFaculty = lazy(() => import('../components/home/StarFaculty'));
+const ToppersCorner = lazy(() => import('../components/home/ToppersCorner'));
+const EventSlider = lazy(() => import('../components/home/EventSlider'));
+const StudyMaterialSection = lazy(() => import('../components/home/StudyMaterialSection'));
+const WhyChooseUs = lazy(() => import('../components/home/WhyChooseUs'));
+const FAQSection = lazy(() => import('../components/home/FAQSection'));
+const AdmissionCTA = lazy(() => import('../components/home/AdmissionCTA'));
+const EnquiryModal = lazy(() => import('../components/common/EnquiryModal'));
 
 const Home = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,16 +60,20 @@ const Home = () => {
             </div>
           )}
 
+          {/* Above-the-fold priority sections */}
           <DirectorMessage />
-          {/* <StatsBar /> */}
           <FeaturedBatches onOpenEnquiry={() => setIsModalOpen(true)} />
-          <StarFaculty />
-          <ToppersCorner />
-          <EventSlider />
-          <StudyMaterialSection />
-          <WhyChooseUs />
-          <FAQSection />
-          <AdmissionCTA onOpenEnquiry={() => setIsModalOpen(true)} />
+
+          {/* Below-the-fold deferred sections */}
+          <Suspense fallback={<div className="h-24" />}>
+            <StarFaculty />
+            <ToppersCorner />
+            <EventSlider />
+            <StudyMaterialSection />
+            <WhyChooseUs />
+            <FAQSection />
+            <AdmissionCTA onOpenEnquiry={() => setIsModalOpen(true)} />
+          </Suspense>
         </main>
       </div>
 
@@ -78,8 +83,12 @@ const Home = () => {
       {/* 4. REAL FLOATING WHATSAPP & CALL BUTTONS */}
       <FloatingContact />
 
-      {/* 5. FUNCTIONAL ENQUIRY MODAL */}
-      <EnquiryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      {/* 5. FUNCTIONAL ENQUIRY MODAL (Rendered only when open to save DOM memory) */}
+      {isModalOpen && (
+        <Suspense fallback={null}>
+          <EnquiryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+        </Suspense>
+      )}
     </div>
   );
 };

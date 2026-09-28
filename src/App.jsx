@@ -1,34 +1,41 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
+
+// 1. Critical Homepage (Eager Load for Instant First Paint)
 import Home from './pages/Home';
-import AboutPage from './pages/AboutPage';
-import ContactPage from './pages/ContactPage';
-import Store from './pages/Store';
+
+// Common Components
 import ScrollToTop from './components/common/ScrollToTop';
-import Login from './pages/Login';
-import Signup from './pages/Signup';
-import AdminDashboard from './pages/admin/AdminDashboard';
 import ProtectedRoute from './components/common/ProtectedRoute';
-import StudentDashboard from './pages/student/StudentDashboard';
-import BatchDetailsPage from './pages/student/BatchDetailsPage';
-import CoursesPage from './pages/courses/CoursesPage';
-import FacultyPage from './pages/FacultyPage';
 import LoadingScreen from './components/common/LoadingScreen';
+
+// 2. Non-Critical Pages (Lazy Loaded Chunks)
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const ContactPage = lazy(() => import('./pages/ContactPage'));
+const Store = lazy(() => import('./pages/Store'));
+const Login = lazy(() => import('./pages/Login'));
+const Signup = lazy(() => import('./pages/Signup'));
+const FacultyPage = lazy(() => import('./pages/FacultyPage'));
+const CoursesPage = lazy(() => import('./pages/courses/CoursesPage'));
+
+// Heavy Modules
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'));
+const BatchDetailsPage = lazy(() => import('./pages/student/BatchDetailsPage'));
 
 function App() {
   const [showLoader, setShowLoader] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
   useEffect(() => {
-    // 1. Minimum 1200ms tak loader clearly dikhega
+    // 350ms display + 350ms fade transition:
+    // User ko branded glow loader dikhta hai, aur Lighthouse mobile throttle par FCP 30s cross nahi karta
     const timer = setTimeout(() => {
-      setIsFadingOut(true); // Fade-out animation start
-
-      // 2. Fade out complete hone (600ms) ke baad DOM se remove karein
+      setIsFadingOut(true);
       setTimeout(() => {
         setShowLoader(false);
-      }, 600);
-    }, 1200);
+      }, 350);
+    }, 350);
 
     return () => clearTimeout(timer);
   }, []);
@@ -37,47 +44,50 @@ function App() {
     <>
       {showLoader && <LoadingScreen isFadingOut={isFadingOut} />}
       <ScrollToTop />
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<Home />} />
-        <Route path="/courses" element={<CoursesPage />} />
-        <Route path="/store" element={<Store />} />
-        <Route path="/about" element={<AboutPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/faculty" element={<FacultyPage />} />
 
-        {/* PROTECTED STUDENT DASHBOARD */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <StudentDashboard />
-            </ProtectedRoute>
-          }
-        />
+      <Suspense fallback={<div className="min-h-screen bg-zinc-950" />}>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Home />} />
+          <Route path="/courses" element={<CoursesPage />} />
+          <Route path="/store" element={<Store />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/faculty" element={<FacultyPage />} />
 
-        {/* PROTECTED BATCH PLAYER ROUTE */}
-        <Route
-          path="/batch/:batchId"
-          element={
-            <ProtectedRoute>
-              <BatchDetailsPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* Protected Student Dashboard */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* PROTECTED ADMIN ROUTE */}
-        <Route
-          path="/admin-dashboard"
-          element={
-            <ProtectedRoute requireAdmin={true}>
-              <AdminDashboard />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+          {/* Protected Batch Player Route */}
+          <Route
+            path="/batch/:batchId"
+            element={
+              <ProtectedRoute>
+                <BatchDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Protected Admin Route */}
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute requireAdmin={true}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </Suspense>
     </>
   );
 }

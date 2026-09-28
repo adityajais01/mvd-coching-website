@@ -85,9 +85,14 @@ const BannerSlider = ({ banners = [], autoSlideInterval = 4500 }) => {
                         >
                             <img 
                                 src={imgSrc} 
-                                alt={`Banner ${index + 1}`} 
+                                alt={item?.title || `Coaching Banner ${index + 1}`} 
                                 className="w-full h-full object-fill rounded-3xl transition-transform duration-[4500ms] ease-out"
+                                // LCP Optimization: Pehle slide ko maximum priority aur decoding async
                                 loading={index === 0 ? "eager" : "lazy"}
+                                fetchPriority={index === 0 ? "high" : "low"}
+                                decoding={index === 0 ? "sync" : "async"}
+                                width="1280"
+                                height="400"
                                 referrerPolicy="no-referrer"
                                 onError={(e) => {
                                     const fileId = rawSrc.match(/\/file\/d\/([a-zA-Z0-9_-]+)/)?.[1] || 

@@ -72,7 +72,7 @@ export const facultyMembers = [
     quote: "Mastering NCERT & Previous Year Question trends",
     badge: "Board Specialist",
     isStar: false,
-    photo: ""
+    photo: "/images/RK.png"
   },
 
   // 🎓 CBSE Board Department Faculties
